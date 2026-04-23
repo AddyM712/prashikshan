@@ -32,8 +32,9 @@ app.use("/api/guide", guideRoutes);
 app.use("/api/journal", journalRoutes);
 app.use("/api/announcements", announcementRoutes);
 
-if (process.env.NODE_ENV !== "production") {
-  app.listen(3000, () => console.log("Server on http://localhost:3000"));
+const PORT = process.env.PORT || 3000;
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => console.log(`Server on http://localhost:${PORT}`));
 }
 
 module.exports = app;
