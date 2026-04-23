@@ -11,6 +11,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
+app.get("/", (req, res) => {
+  res.send("Prashikshan API is running ✅");
+});
 
 // DB connection
 mongoose.connect(process.env.MONGO_URI)
@@ -32,4 +35,8 @@ app.use("/api/guide", guideRoutes);
 app.use("/api/journal", journalRoutes);
 app.use("/api/announcements", announcementRoutes);
 
-app.listen(3000, () => console.log("Server on http://localhost:3000"));
+if (process.env.NODE_ENV !== "production") {
+  app.listen(3000, () => console.log("Server on http://localhost:3000"));
+}
+
+module.exports = app;
