@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Announcements | Guide | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.layout { display: flex; min-height: 100vh; }
+.main { flex: 1; min-width: 0; padding: 40px 48px; background: var(--bg); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.card-pad { padding: 24px; }
+.section-label { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 14px; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+.grid-announce { display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start; }
+
+/* Composer */
+.ann-type-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.type-btn { padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 600; color: var(--text-3); cursor: pointer; transition: all .15s; font-family: var(--font); display: flex; align-items: center; gap: 6px; }
+.type-btn:hover { border-color: var(--border-dark); color: var(--text); }
+.type-btn.active { color: #fff; border-color: transparent; }
+.type-btn.info.active    { background: var(--blue); }
+.type-btn.warning.active { background: #f59e0b; }
+.type-btn.deadline.active{ background: var(--red); }
+.type-btn.success.active { background: var(--green); }
+.type-btn.event.active   { background: #8b5cf6; }
+
+/* Audience selector */
+.audience-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.aud-chip { padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 600; color: var(--text-3); cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 5px; }
+.aud-chip:hover { border-color: var(--border-dark); color: var(--text); }
+.aud-chip.selected { background: var(--blue-light); border-color: #93c5fd; color: var(--blue-dark); }
+.aud-av { width: 16px; height: 16px; border-radius: 50%; color: #fff; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+/* Pin row */
+.pin-row { display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); margin-top: 14px; }
+.pin-label { font-size: 13px; font-weight: 600; color: var(--text-2); flex: 1; }
+.toggle { width: 38px; height: 22px; background: var(--border); border-radius: 11px; position: relative; cursor: pointer; transition: background .2s; flex-shrink: 0; border: none; }
+.toggle.on { background: var(--blue); }
+.toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left .2s; }
+.toggle.on::after { left: 19px; }
+
+/* Announcement cards */
+.ann-card { padding: 20px; margin-bottom: 12px; border-radius: var(--radius-lg); border: 1px solid var(--border); background: var(--surface); transition: all .18s; position: relative; overflow: hidden; }
+.ann-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+.ann-card.info::before    { background: var(--blue); }
+.ann-card.warning::before { background: #f59e0b; }
+.ann-card.deadline::before{ background: var(--red); }
+.ann-card.success::before { background: var(--green); }
+.ann-card.event::before   { background: #8b5cf6; }
+.ann-card:hover { box-shadow: var(--shadow); border-color: var(--border-dark); }
+.ann-card.pinned { background: #fffbeb; border-color: #fcd34d; }
+.ac-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+.ac-type-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.ac-info { flex: 1; min-width: 0; }
+.ac-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px; display: flex; align-items: center; gap: 8px; }
+.ac-meta { font-size: 12px; color: var(--text-4); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ac-body { font-size: 14px; color: var(--text-2); line-height: 1.7; margin-bottom: 12px; }
+.ac-footer { display: flex; align-items: center; justify-content: space-between; }
+.ac-audience { display: flex; gap: 5px; flex-wrap: wrap; }
+.aud-tag { padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.ac-actions { display: flex; gap: 6px; }
+.ac-btn { padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 600; color: var(--text-3); cursor: pointer; transition: all .15s; font-family: var(--font); }
+.ac-btn:hover { background: var(--surface-2); }
+.ac-btn.del:hover { background: var(--red-bg); color: var(--red); border-color: #fca5a5; }
+
+/* Read receipts */
+.read-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 2px; }
+
+/* Stats sidebar */
+.stat-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.stat-row:last-child { border-bottom: none; }
+
+/* Quick templates -->
+.tpl-item { padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; transition: all .15s; margin-bottom: 6px; }
+.tpl-item:hover { border-color: var(--blue); background: var(--blue-light); }
+.tpl-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.tpl-preview { font-size: 12px; color: var(--text-4); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-logo">Prashik<span>shan</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Guide Panel</div>
+    <a class="nav-item" href="guide-dashboard.html"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item" href="guide-applications.html"><span class="nav-icon">📋</span>Applications</a>
+    <a class="nav-item" href="review-submissions.html"><span class="nav-icon">📝</span>Review Submissions</a>
+    <a class="nav-item" href="guide-rubric.html"><span class="nav-icon">📐</span>Rubric Grading</a>
+    <a class="nav-item active" href="guide-announcements.html"><span class="nav-icon">📢</span>Announcements</a>
+    <a class="nav-item" href="guide-chat.html"><span class="nav-icon">💬</span>Student Chat</a>
+    <a class="nav-item" href="guide-analytics.html"><span class="nav-icon">📊</span>Analytics</a>
+    <a class="nav-item" href="guide-students.html"><span class="nav-icon">👥</span>Student Tracker</a>
+    <a class="nav-item" href="guide-schedule.html"><span class="nav-icon">🗓</span>Schedule</a>
+    <div class="nav-group-label">Account</div>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">→</span>Sign out</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" style="background:#f59e0b;color:#1a1f36" id="avLetter">G</div>
+      <div><div class="user-name" id="guideName">Guide</div><div class="user-role">Expert Guide</div></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px" class="fade-up">
+    <div>
+      <div class="page-eyebrow">Guide Panel</div>
+      <div style="font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.5px">Announcements</div>
+      <div style="font-size:14px;color:var(--text-3);margin-top:4px">Post updates, reminders, and news to your students.</div>
+    </div>
+    <span class="badge badge-blue" id="totalAnnBadge">0 announcements</span>
+  </div>
+
+  <div class="grid-announce">
+    <!-- Left: composer + list -->
+    <div>
+      <!-- Composer -->
+      <div class="card card-pad fade-up d1" style="margin-bottom:20px">
+        <div class="section-label">New Announcement</div>
+
+        <div class="ann-type-row">
+          <button class="type-btn info active" onclick="setType('info',this)">ℹ️ Info</button>
+          <button class="type-btn warning" onclick="setType('warning',this)">⚠️ Warning</button>
+          <button class="type-btn deadline" onclick="setType('deadline',this)">🔴 Deadline</button>
+          <button class="type-btn success" onclick="setType('success',this)">✅ Good news</button>
+          <button class="type-btn event" onclick="setType('event',this)">📅 Event</button>
+        </div>
+
+        <div class="field">
+          <label class="label">Title</label>
+          <input type="text" class="input" id="annTitle" placeholder="Announcement headline…">
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label class="label">Message</label>
+          <textarea class="input" id="annBody" style="min-height:100px;line-height:1.6" placeholder="Write your announcement here. Be clear and specific. Students will see this on their dashboard."></textarea>
+        </div>
+
+        <div style="margin-top:14px">
+          <label class="label">Audience</label>
+          <div class="audience-chips" id="audienceChips"></div>
+        </div>
+
+        <div class="pin-row">
+          <span style="font-size:16px">📌</span>
+          <div class="pin-label">
+            <div>Pin this announcement</div>
+            <div style="font-size:12px;color:var(--text-4);font-weight:400">Pinned posts appear at the top of the student board</div>
+          </div>
+          <button class="toggle" id="pinToggle" onclick="this.classList.toggle('on')"></button>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+          <button class="btn btn-secondary" onclick="clearComposer()">Clear</button>
+          <button class="btn btn-primary" onclick="postAnnouncement()">📢 Post announcement</button>
+        </div>
+      </div>
+
+      <!-- Announcements feed -->
+      <div class="fade-up d2">
+        <div class="between" style="margin-bottom:14px">
+          <div class="section-label" style="margin:0">Posted Announcements</div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-secondary btn-sm" onclick="filterAnn('all')" id="fa-all" style="background:var(--blue);color:#fff;border-color:var(--blue)">All</button>
+            <button class="btn btn-secondary btn-sm" onclick="filterAnn('pinned')" id="fa-pinned">📌 Pinned</button>
+            <button class="btn btn-secondary btn-sm" onclick="filterAnn('deadline')" id="fa-deadline">🔴 Deadlines</button>
+          </div>
+        </div>
+        <div id="annList"></div>
+      </div>
+    </div>
+
+    <!-- Right sidebar -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <!-- Stats -->
+      <div class="card card-pad fade-up d2">
+        <div class="section-label">Board Stats</div>
+        <div class="stat-row"><span style="color:var(--text-2)">Total posted</span><strong id="stat-total">0</strong></div>
+        <div class="stat-row"><span style="color:var(--text-2)">Pinned</span><strong id="stat-pinned">0</strong></div>
+        <div class="stat-row"><span style="color:var(--text-2)">This week</span><strong id="stat-week">0</strong></div>
+        <div class="stat-row"><span style="color:var(--text-2)">Avg. read rate</span><strong style="color:var(--green)">87%</strong></div>
+      </div>
+
+      <!-- Quick templates -->
+      <div class="card card-pad fade-up d3">
+        <div class="section-label">Quick Templates</div>
+        <div id="templatesList"></div>
+      </div>
+
+      <!-- Students read status -->
+      <div class="card card-pad fade-up d4">
+        <div class="section-label">Last Announcement</div>
+        <div id="readStatus">
+          <div style="font-size:13px;color:var(--text-4);text-align:center;padding:16px">Post your first announcement to see read status.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+const TYPE_META = {
+  info:     { icon:'ℹ️',  iconBg:'#dbeafe', color:'var(--blue)',  label:'Info'      },
+  warning:  { icon:'⚠️',  iconBg:'#fef3c7', color:'#f59e0b',     label:'Warning'   },
+  deadline: { icon:'🔴',  iconBg:'#fde8e8', color:'var(--red)',   label:'Deadline'  },
+  success:  { icon:'✅',  iconBg:'#dcfce7', color:'var(--green)', label:'Good news' },
+  event:    { icon:'📅',  iconBg:'#ede9fe', color:'#8b5cf6',      label:'Event'     },
+};
+
+const STUDENTS = [
+  { id:'all',    name:'All Students', color:'#0570de' },
+  { id:'rahul',  name:'Rahul',        color:'#0570de' },
+  { id:'ananya', name:'Ananya',       color:'#a855f7' },
+  { id:'vikram', name:'Vikram',       color:'#1a7f37' },
+  { id:'priya',  name:'Priya',        color:'#0353a4' },
+  { id:'mohit',  name:'Mohit',        color:'#92400e' },
+];
+
+const TEMPLATES_DATA = [
+  { title:'Deadline Reminder', body:'A reminder that the [milestone] is due on [date]. Please submit your work via the Submit Work page.', type:'deadline' },
+  { title:'Review Scheduled',  body:'I\'ve scheduled a review session for [date] at [time]. Please come prepared with your current progress and any questions.', type:'event' },
+  { title:'Great Progress!',   body:'I wanted to recognize the excellent work this week. Keep it up — you\'re on track for a great outcome!', type:'success' },
+  { title:'Action Required',   body:'Please review the feedback I\'ve left on your submission. There are a few changes needed before we can proceed to the next milestone.', type:'warning' },
+];
+
+let announcements = JSON.parse(localStorage.getItem('guide_announcements') || 'null') || [
+  { id:1, type:'success', title:'Welcome to the Spring 2026 Cohort! 🎉', body:'I\'m excited to work with all of you this semester. Please complete your profiles and browse the available projects in the marketplace. Our first group review will be on March 28.', audience:['all'], pinned:true, time:'Mar 20, 2026', reads:{rahul:true, ananya:true, vikram:true, priya:false, mohit:false} },
+  { id:2, type:'deadline', title:'Backend milestone due March 26', body:'A reminder that the Backend Development milestone is due this Thursday, March 26. Please ensure your GitHub repository is up to date and submit via the Submit Work page.', audience:['rahul','ananya','priya'], pinned:false, time:'Mar 23, 2026', reads:{rahul:true, ananya:false, priya:false} },
+  { id:3, type:'event', title:'Group review session — March 28 at 10 AM', body:'We will have a group review session on March 28 via Google Meet. Link will be shared the day before. All students are expected to demo their current project status.', audience:['all'], pinned:false, time:'Mar 24, 2026', reads:{rahul:false, ananya:false, vikram:true, priya:false, mohit:false} },
+];
+
+let currentType = 'info';
+let selectedAudience = new Set(['all']);
+let activeFilter = 'all';
+
+function setType(type, btn) {
+  currentType = type;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function renderAudienceChips() {
+  document.getElementById('audienceChips').innerHTML = STUDENTS.map(s => `
+    <div class="aud-chip ${selectedAudience.has(s.id) ? 'selected' : ''}" onclick="toggleAudience('${s.id}',this)">
+      <div class="aud-av" style="background:${s.color}">${s.name[0]}</div>
+      ${s.name}
+    </div>`).join('');
+}
+
+function toggleAudience(id, chip) {
+  if (id === 'all') {
+    selectedAudience.clear();
+    selectedAudience.add('all');
+  } else {
+    selectedAudience.delete('all');
+    if (selectedAudience.has(id)) selectedAudience.delete(id);
+    else selectedAudience.add(id);
+    if (!selectedAudience.size) selectedAudience.add('all');
+  }
+  renderAudienceChips();
+}
+
+function renderTemplates() {
+  document.getElementById('templatesList').innerHTML = TEMPLATES_DATA.map((t, i) => `
+    <div class="tpl-item" onclick="useTemplate(${i})">
+      <div class="tpl-title">${TYPE_META[t.type].icon} ${t.title}</div>
+      <div class="tpl-preview">${t.body.substring(0,60)}…</div>
+    </div>`).join('');
+}
+
+function useTemplate(i) {
+  const t = TEMPLATES_DATA[i];
+  document.getElementById('annTitle').value = t.title;
+  document.getElementById('annBody').value = t.body;
+  currentType = t.type;
+  document.querySelectorAll('.type-btn').forEach(b => {
+    b.classList.toggle('active', b.classList.contains(t.type));
+  });
+}
+
+function postAnnouncement() {
+  const title = document.getElementById('annTitle').value.trim();
+  const body = document.getElementById('annBody').value.trim();
+  if (!title || !body) { alert('Please fill in the title and message.'); return; }
+  const ann = {
+    id: Date.now(),
+    type: currentType,
+    title, body,
+    audience: [...selectedAudience],
+    pinned: document.getElementById('pinToggle').classList.contains('on'),
+    time: new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }),
+    reads: {}
+  };
+  announcements.unshift(ann);
+  localStorage.setItem('guide_announcements', JSON.stringify(announcements));
+  clearComposer();
+  renderAnnouncements();
+  renderStats();
+}
+
+function clearComposer() {
+  document.getElementById('annTitle').value = '';
+  document.getElementById('annBody').value = '';
+  document.getElementById('pinToggle').classList.remove('on');
+  currentType = 'info';
+  selectedAudience = new Set(['all']);
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.type-btn.info').classList.add('active');
+  renderAudienceChips();
+}
+
+function filterAnn(f) {
+  activeFilter = f;
+  document.querySelectorAll('[id^="fa-"]').forEach(b => { b.style.background=''; b.style.color=''; b.style.borderColor=''; });
+  const el = document.getElementById('fa-'+f);
+  if (el) { el.style.background='var(--blue)'; el.style.color='#fff'; el.style.borderColor='var(--blue)'; }
+  renderAnnouncements();
+}
+
+function renderAnnouncements() {
+  let list = [...announcements];
+  if (activeFilter === 'pinned') list = list.filter(a => a.pinned);
+  if (activeFilter === 'deadline') list = list.filter(a => a.type === 'deadline');
+  // Pinned first
+  list.sort((a,b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
+  document.getElementById('totalAnnBadge').textContent = announcements.length + ' announcement' + (announcements.length !== 1 ? 's' : '');
+  if (!list.length) {
+    document.getElementById('annList').innerHTML = `<div style="text-align:center;padding:48px;color:var(--text-4)"><div style="font-size:32px;opacity:.4;margin-bottom:10px">📢</div><div style="font-size:14px;font-weight:600;color:var(--text-3)">No announcements yet</div></div>`;
+    return;
+  }
+
+  document.getElementById('annList').innerHTML = list.map(a => {
+    const meta = TYPE_META[a.type];
+    const audience = a.audience.includes('all') ? 'All students' : a.audience.join(', ');
+    const readCount = Object.values(a.reads||{}).filter(Boolean).length;
+    const totalAud = a.audience.includes('all') ? 6 : a.audience.length;
+    return `
+      <div class="ann-card ${a.type} ${a.pinned ? 'pinned' : ''}">
+        ${a.pinned ? '<div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:8px">📌 Pinned</div>' : ''}
+        <div class="ac-header">
+          <div class="ac-type-icon" style="background:${meta.iconBg}">${meta.icon}</div>
+          <div class="ac-info">
+            <div class="ac-title">${a.title} <span class="badge" style="background:${meta.iconBg};color:${meta.color};font-size:10px">${meta.label}</span></div>
+            <div class="ac-meta">
+              <span>📅 ${a.time}</span>
+              <span>👥 ${audience}</span>
+              <span>👁 ${readCount}/${totalAud} read</span>
+            </div>
+          </div>
+        </div>
+        <div class="ac-body">${a.body}</div>
+        <div class="ac-footer">
+          <div class="ac-audience">
+            ${(a.audience.includes('all') ? ['All Students'] : a.audience).map(id => {
+              const s = STUDENTS.find(x => x.id === id);
+              return `<span class="aud-tag" style="background:${s?.color+'20'||'var(--surface-2)'};color:${s?.color||'var(--text-3)'}">${s?.name||id}</span>`;
+            }).join('')}
+          </div>
+          <div class="ac-actions">
+            <button class="ac-btn" onclick="pinToggle(${a.id})">${a.pinned ? '📌 Unpin' : '📌 Pin'}</button>
+            <button class="ac-btn del" onclick="deleteAnn(${a.id})">✕ Delete</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Update read status for last ann
+  if (announcements.length) renderReadStatus(announcements[0]);
+}
+
+function renderReadStatus(ann) {
+  const allStudents = ['rahul','ananya','vikram','priya','mohit'];
+  const relevant = ann.audience.includes('all') ? allStudents : ann.audience.filter(a => a !== 'all');
+  const colors = { rahul:'#0570de', ananya:'#a855f7', vikram:'#1a7f37', priya:'#0353a4', mohit:'#92400e' };
+  const names = { rahul:'Rahul', ananya:'Ananya', vikram:'Vikram', priya:'Priya', mohit:'Mohit' };
+  document.getElementById('readStatus').innerHTML = `
+    <div style="font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:10px">${ann.title.substring(0,40)}…</div>
+    ${relevant.map(id => `
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+        <div style="width:24px;height:24px;border-radius:50%;background:${colors[id]};color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">${names[id][0]}</div>
+        <span style="font-size:13px;flex:1">${names[id]}</span>
+        ${ann.reads?.[id] ? '<span style="font-size:12px;color:var(--green);font-weight:600">✓ Read</span>' : '<span style="font-size:12px;color:var(--text-4)">Not seen</span>'}
+      </div>`).join('')}`;
+}
+
+function pinToggle(id) {
+  const ann = announcements.find(a => a.id === id);
+  if (ann) { ann.pinned = !ann.pinned; localStorage.setItem('guide_announcements', JSON.stringify(announcements)); renderAnnouncements(); }
+}
+function deleteAnn(id) {
+  announcements = announcements.filter(a => a.id !== id);
+  localStorage.setItem('guide_announcements', JSON.stringify(announcements));
+  renderAnnouncements(); renderStats();
+}
+
+function renderStats() {
+  document.getElementById('stat-total').textContent = announcements.length;
+  document.getElementById('stat-pinned').textContent = announcements.filter(a => a.pinned).length;
+  const thisWeek = announcements.filter(a => a.time.includes('Mar 2')).length;
+  document.getElementById('stat-week').textContent = thisWeek;
+}
+
+const _g = JSON.parse(localStorage.getItem('guide') || '{}');
+if (_g.name) { document.getElementById('guideName').textContent = _g.name; document.getElementById('avLetter').textContent = _g.name[0]; }
+function logout() { localStorage.removeItem('guide'); location.href='/index.html'; }
+
+renderAudienceChips(); renderTemplates(); renderAnnouncements(); renderStats();
+</script>
+</body>
+</html>

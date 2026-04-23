@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg); }
+.auth-wrap { width: 100%; max-width: 420px; padding: 24px; }
+.auth-logo { text-align: center; margin-bottom: 32px; }
+.auth-logo a { font-size: 20px; font-weight: 700; color: var(--text); text-decoration: none; }
+.auth-logo a span { color: var(--blue); }
+.auth-card { padding: 36px; }
+.auth-heading { font-family: var(--font-serif); font-size: 26px; color: var(--text); margin-bottom: 6px; letter-spacing: -0.3px; }
+.auth-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 28px; }
+.auth-footer { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+.auth-footer a { color: var(--blue); text-decoration: none; font-weight: 500; }
+.auth-footer a:hover { text-decoration: underline; }
+.auth-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: var(--text-muted); font-size: 12px; }
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+</style>
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-logo anim">
+    <a href="index.html">Prashik<span>shan</span></a>
+  </div>
+  <div class="auth-card card anim d1">
+    <div class="auth-heading">Welcome back</div>
+    <div class="auth-sub">Sign in to your student account</div>
+
+    <div class="alert alert-error" id="errorMsg"></div>
+    <div class="alert alert-success" id="successMsg"></div>
+
+    <div class="input-group">
+      <label class="input-label">Email address</label>
+      <input type="email" class="input" id="email" placeholder="you@university.edu" autocomplete="email">
+    </div>
+    <div class="input-group" style="margin-bottom:24px">
+      <label class="input-label">Password</label>
+      <input type="password" class="input" id="password" placeholder="Your password" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary btn-full" onclick="loginStudent()">Sign in</button>
+
+    <div class="auth-divider">or</div>
+
+    <a href="guide-login.html" class="btn btn-outline btn-full">Sign in as a guide</a>
+  </div>
+  <div class="auth-footer anim d2">
+    Don't have an account? <a href="register.html">Create one</a>
+  </div>
+</div>
+
+<script>
+async function loginStudent() {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const errEl = document.getElementById('errorMsg');
+  const sucEl = document.getElementById('successMsg');
+  errEl.style.display = 'none'; sucEl.style.display = 'none';
+
+  if (!email || !password) {
+    errEl.textContent = 'Please enter your email and password.';
+    errEl.style.display = 'block'; return;
+  }
+  try {
+    const res = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email,password}) });
+    const data = await res.json();
+    if (res.ok) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('student', JSON.stringify(data.student));
+      sucEl.textContent = 'Signed in! Redirecting...';
+      sucEl.style.display = 'block';
+      setTimeout(() => window.location.href = '/dashboard.html', 700);
+    } else {
+      errEl.textContent = data.message || 'Invalid email or password.';
+      errEl.style.display = 'block';
+    }
+  } catch(e) {
+    errEl.textContent = 'Could not connect to server.';
+    errEl.style.display = 'block';
+  }
+}
+document.addEventListener('keydown', e => { if (e.key === 'Enter') loginStudent(); });
+</script>
+</body>
+</html>

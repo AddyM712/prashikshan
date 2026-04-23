@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Applications | Guide | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.layout { display: flex; min-height: 100vh; }
+.sidebar { position: sticky; top: 0; height: 100vh; flex-shrink: 0; }
+.main { flex: 1; min-width: 0; padding: 40px 48px; background: var(--bg); }
+
+.filter-bar { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+.fpill { padding: 8px 18px; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--text-3); background: var(--surface); cursor: pointer; transition: all 0.15s; }
+.fpill:hover { border-color: var(--border-dark); color: var(--text); }
+.fpill.on { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+.app-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 24px; margin-bottom: 14px; transition: all 0.18s; }
+.app-card:hover { box-shadow: var(--shadow); border-color: var(--border-dark); }
+.ac-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.ac-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.ac-avatar { width: 44px; height: 44px; border-radius: 50%; color: #fff; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ac-name { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.ac-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.ac-meta span { font-size: 13px; color: var(--text-4); display: flex; align-items: center; gap: 5px; }
+.ac-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); gap: 12px; flex-wrap: wrap; }
+.skills { display: flex; gap: 6px; flex-wrap: wrap; }
+.skill { padding: 3px 10px; border-radius: 20px; background: var(--surface-2); border: 1px solid var(--border); font-size: 12px; color: var(--text-3); font-weight: 500; }
+.ac-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.empty { text-align: center; padding: 80px 20px; }
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-title { font-size: 16px; font-weight: 700; color: var(--text-3); margin-bottom: 4px; }
+.section-label { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 14px; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+.page-header { margin-bottom: 32px; }
+.page-eyebrow { font-size: 12px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.page-title { font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+.page-sub { font-size: 14px; color: var(--text-3); margin-top: 4px; }
+.header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Prashik<span>shan</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Guide Panel</div>
+    <a class="nav-item" href="guide-dashboard.html"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item active" href="guide-applications.html"><span class="nav-icon">📋</span>Applications</a>
+    <a class="nav-item" href="review-submissions.html"><span class="nav-icon">📝</span>Review Submissions</a>
+    <a class="nav-item" href="guide-rubric.html"><span class="nav-icon">📐</span>Rubric Grading</a>
+    <a class="nav-item" href="guide-announcements.html"><span class="nav-icon">📢</span>Announcements</a>
+    <a class="nav-item" href="guide-chat.html"><span class="nav-icon">💬</span>Student Chat</a>
+    <a class="nav-item" href="guide-analytics.html"><span class="nav-icon">📊</span>Analytics</a>
+    <a class="nav-item" href="guide-students.html"><span class="nav-icon">👥</span>Student Tracker</a>
+    <a class="nav-item" href="guide-schedule.html"><span class="nav-icon">🗓</span>Schedule</a>
+    <div class="nav-group-label">Account</div>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">→</span>Sign out</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" style="background:#f59e0b;color:#1a1f36" id="avLetter">G</div>
+      <div>
+        <div class="user-name" id="guideName">Guide</div>
+        <div class="user-role">Expert Guide</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="header-row page-header fade-up">
+    <div>
+      <div class="page-eyebrow">Guide Panel</div>
+      <div class="page-title">Student Applications</div>
+      <div class="page-sub">Review, approve, or reject student project applications.</div>
+    </div>
+    <span class="badge badge-yellow" id="pendingCount">3 pending</span>
+  </div>
+
+  <div class="filter-bar fade-up d1">
+    <div class="fpill on" onclick="filterApps('all',this)">All</div>
+    <div class="fpill" onclick="filterApps('pending',this)">Pending</div>
+    <div class="fpill" onclick="filterApps('approved',this)">Approved</div>
+    <div class="fpill" onclick="filterApps('rejected',this)">Rejected</div>
+  </div>
+
+  <div id="appsList" class="fade-up d2"></div>
+</main>
+</div>
+
+<script>
+let apps = [
+  { id:1, name:'Rahul Sharma',  project:'AI Resume Analyzer',             university:'IIT Bombay',   skills:['Python','ML','NLP'],      appliedOn:'20 Mar 2026', status:'pending',  av:'R', color:'#0570de' },
+  { id:2, name:'Ananya Patel',  project:'Student Performance Predictor',  university:'VIT Vellore',  skills:['Python','Data Analysis'], appliedOn:'19 Mar 2026', status:'pending',  av:'A', color:'#a855f7' },
+  { id:3, name:'Vikram Rao',    project:'Cyber Threat Detector',          university:'BITS Pilani',  skills:['Python','Security'],      appliedOn:'18 Mar 2026', status:'pending',  av:'V', color:'#1a7f37' },
+  { id:4, name:'Priya Singh',   project:'AI Resume Analyzer',             university:'NIT Trichy',   skills:['Python','NLP'],           appliedOn:'17 Mar 2026', status:'approved', av:'P', color:'#0570de' },
+  { id:5, name:'Mohit Verma',   project:'Smart Campus App',               university:'DTU Delhi',    skills:['React','Node.js'],        appliedOn:'16 Mar 2026', status:'rejected', av:'M', color:'#92400e' },
+];
+let currentFilter = 'all';
+
+function filterApps(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.fpill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  render();
+}
+function approve(id) { apps.find(a=>a.id===id).status='approved'; updatePending(); render(); }
+function reject(id)  { apps.find(a=>a.id===id).status='rejected'; updatePending(); render(); }
+function updatePending() {
+  const n = apps.filter(a=>a.status==='pending').length;
+  const el = document.getElementById('pendingCount');
+  el.textContent = n + ' pending';
+  el.className = n > 0 ? 'badge badge-yellow' : 'badge badge-green';
+}
+function statusBadge(s) {
+  if (s==='approved') return '<span class="badge badge-green">Approved</span>';
+  if (s==='rejected') return '<span class="badge badge-red">Rejected</span>';
+  return '<span class="badge badge-yellow">Pending review</span>';
+}
+function render() {
+  const list = apps.filter(a => currentFilter==='all' || a.status===currentFilter);
+  const el = document.getElementById('appsList');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">No ${currentFilter==='all'?'':currentFilter} applications</div></div>`;
+    return;
+  }
+  el.innerHTML = list.map(a => `
+    <div class="app-card">
+      <div class="ac-top">
+        <div class="ac-left">
+          <div class="ac-avatar" style="background:${a.color}">${a.av}</div>
+          <div style="min-width:0">
+            <div class="ac-name">${a.name}</div>
+            <div class="ac-meta">
+              <span>📚 ${a.project}</span>
+              <span>🏛 ${a.university}</span>
+              <span>📅 ${a.appliedOn}</span>
+            </div>
+          </div>
+        </div>
+        ${statusBadge(a.status)}
+      </div>
+      <div class="ac-bottom">
+        <div class="skills">${a.skills.map(s=>`<span class="skill">${s}</span>`).join('')}</div>
+        ${a.status==='pending' ? `
+          <div class="ac-actions">
+            <button class="btn btn-sm" style="background:var(--green-bg);color:var(--green);border:1px solid #86efac;font-weight:600" onclick="approve(${a.id})">✓ Approve</button>
+            <button class="btn btn-danger btn-sm" onclick="reject(${a.id})">✕ Reject</button>
+          </div>` : `
+          <div class="ac-actions">
+            <button class="btn btn-secondary btn-sm" onclick="approve(${a.id})">${a.status==='rejected'?'Reconsider':'✓ Approved'}</button>
+          </div>`}
+      </div>
+    </div>`).join('');
+}
+const g = JSON.parse(localStorage.getItem('guide'));
+if (g) { document.getElementById('guideName').textContent=g.name||'Guide'; document.getElementById('avLetter').textContent=(g.name||'G')[0]; }
+function logout() { localStorage.removeItem('guide'); location.href='/index.html'; }
+render();
+</script>
+</body>
+</html>

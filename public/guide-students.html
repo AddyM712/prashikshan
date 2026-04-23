@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Tracker | Guide | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.layout { display: flex; min-height: 100vh; }
+.sidebar { position: sticky; top: 0; height: 100vh; flex-shrink: 0; }
+.main { flex: 1; min-width: 0; padding: 40px 48px; background: var(--bg); }
+
+.grid-3 { display: grid; grid-template-columns: 300px 1fr 280px; gap: 20px; min-height: calc(100vh - 170px); }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.card-pad { padding: 20px; }
+.section-label { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 14px; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+.divider { height: 1px; background: var(--border); margin: 14px 0; }
+.page-header { margin-bottom: 28px; }
+.page-eyebrow { font-size: 12px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.page-title { font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+.page-sub { font-size: 14px; color: var(--text-3); margin-top: 4px; }
+
+/* Student list panel */
+.student-list-panel { display: flex; flex-direction: column; }
+.sl-search { margin-bottom: 12px; }
+.sl-search input { width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font);font-size:13px;outline:none;background:var(--surface);color:var(--text);transition:all .15s; }
+.sl-search input:focus { border-color:var(--blue); }
+
+.student-card-item { display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--radius-lg);cursor:pointer;transition:all .15s;margin-bottom:6px;border:1px solid transparent; }
+.student-card-item:hover { background:var(--surface-2);border-color:var(--border); }
+.student-card-item.active { background:var(--blue-light);border-color:var(--blue); }
+.sci-av { width:38px;height:38px;border-radius:50%;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative; }
+.sci-online { position:absolute;bottom:1px;right:1px;width:9px;height:9px;border-radius:50%;background:var(--green);border:2px solid var(--surface); }
+.sci-body { flex:1;min-width:0; }
+.sci-name { font-size:13px;font-weight:600;color:var(--text); }
+.sci-meta { font-size:11px;color:var(--text-4);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.sci-right { text-align:right;flex-shrink:0; }
+.sci-pct { font-size:13px;font-weight:700;color:var(--text); }
+.sci-status { font-size:11px;margin-top:2px; }
+
+/* Detail panel */
+.detail-panel { display:flex;flex-direction:column;gap:16px; }
+
+.student-hero { padding:24px;display:flex;align-items:center;gap:18px; }
+.hero-av { width:60px;height:60px;border-radius:50%;color:#fff;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.hero-name { font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.4px; }
+.hero-meta { font-size:13px;color:var(--text-4);margin-top:4px; }
+.hero-tags { display:flex;gap:6px;margin-top:8px;flex-wrap:wrap; }
+
+.mini-stats { display:grid;grid-template-columns:repeat(3,1fr);gap:12px; }
+.mini-stat { padding:14px;border:1px solid var(--border);border-radius:var(--radius-lg);text-align:center;background:var(--bg); }
+.ms-val { font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.5px; }
+.ms-label { font-size:11px;color:var(--text-4);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:4px; }
+
+/* Milestone stepper */
+.milestone-stepper { display:flex;flex-direction:column;gap:0; }
+.ms-step { display:flex;gap:14px;padding:12px 0; }
+.ms-step-left { display:flex;flex-direction:column;align-items:center;gap:0;width:24px; }
+.ms-dot { width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;border:2px solid; }
+.ms-dot.done { background:var(--green);border-color:var(--green);color:#fff; }
+.ms-dot.active { background:var(--blue);border-color:var(--blue);color:#fff; }
+.ms-dot.pending { background:var(--surface);border-color:var(--border);color:var(--text-4); }
+.ms-line { flex:1;width:2px;background:var(--border);margin:2px auto; }
+.ms-line.done { background:var(--green); }
+.ms-step-body { flex:1;padding-bottom:8px; }
+.ms-step-title { font-size:13px;font-weight:600;color:var(--text); }
+.ms-step-date { font-size:12px;color:var(--text-4);margin-top:2px; }
+.ms-step-note { font-size:12px;color:var(--text-3);margin-top:6px;padding:8px 10px;background:var(--surface-2);border-radius:6px;border-left:3px solid var(--blue); }
+.ms-approve-btn { display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:12px;font-weight:600;padding:5px 12px;border-radius:6px;background:var(--green-bg);color:var(--green);border:1px solid #86efac;cursor:pointer;transition:all .15s; }
+.ms-approve-btn:hover { background:#bbf7d0; }
+
+/* Grade input */
+.grade-row { display:flex;gap:8px;align-items:center;flex-wrap:wrap; }
+.grade-btn { padding:6px 16px;border-radius:6px;border:1px solid var(--border);background:var(--surface);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;color:var(--text-3); }
+.grade-btn:hover { border-color:var(--blue);color:var(--blue); }
+.grade-btn.selected { background:var(--blue);color:#fff;border-color:var(--blue); }
+
+/* Notes */
+.note-item { padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);margin-bottom:8px;font-size:13px;color:var(--text-2);line-height:1.6;position:relative; }
+.note-time { font-size:11px;color:var(--text-4);margin-top:6px; }
+.note-del { position:absolute;top:10px;right:10px;font-size:12px;color:var(--text-4);cursor:pointer;background:none;border:none; }
+.note-del:hover { color:var(--red); }
+
+/* Risk badge */
+.risk-high { background:#fde8e8;color:#c0392b;border:1px solid #fca5a5; }
+.risk-med  { background:#fef3c7;color:#92400e;border:1px solid #fcd34d; }
+.risk-low  { background:#dcfce7;color:#1a7f37;border:1px solid #86efac; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Prashik<span>shan</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Guide Panel</div>
+    <a class="nav-item" href="guide-dashboard.html"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item" href="guide-applications.html"><span class="nav-icon">📋</span>Applications</a>
+    <a class="nav-item" href="review-submissions.html"><span class="nav-icon">📝</span>Review Submissions</a>
+    <a class="nav-item" href="guide-rubric.html"><span class="nav-icon">📐</span>Rubric Grading</a>
+    <a class="nav-item" href="guide-announcements.html"><span class="nav-icon">📢</span>Announcements</a>
+    <a class="nav-item" href="guide-chat.html"><span class="nav-icon">💬</span>Student Chat</a>
+    <a class="nav-item" href="guide-analytics.html"><span class="nav-icon">📊</span>Analytics</a>
+    <a class="nav-item active" href="guide-students.html"><span class="nav-icon">👥</span>Student Tracker</a>
+    <a class="nav-item" href="guide-schedule.html"><span class="nav-icon">🗓</span>Schedule</a>
+    <div class="nav-group-label">Account</div>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">→</span>Sign out</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" style="background:#f59e0b;color:#1a1f36" id="avLetter">G</div>
+      <div>
+        <div class="user-name" id="guideName">Guide</div>
+        <div class="user-role">Expert Guide</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-header fade-up">
+    <div class="page-eyebrow">Guide Panel</div>
+    <div class="page-title">Student Tracker</div>
+    <div class="page-sub">Monitor progress, grade milestones, and add private notes for each student.</div>
+  </div>
+
+  <div class="grid-3 fade-up d1">
+    <!-- Left: student list -->
+    <div class="student-list-panel">
+      <div class="sl-search">
+        <input type="text" placeholder="Search students…" oninput="filterStudents(this.value)">
+      </div>
+      <div id="studentList"></div>
+    </div>
+
+    <!-- Middle: detail -->
+    <div class="detail-panel" id="detailPanel">
+      <div style="display:flex;align-items:center;justify-content:center;height:300px;color:var(--text-4);flex-direction:column;gap:12px">
+        <div style="font-size:40px;opacity:.3">👥</div>
+        <div style="font-size:15px;font-weight:600;color:var(--text-3)">Select a student</div>
+      </div>
+    </div>
+
+    <!-- Right: actions panel -->
+    <div id="actionsPanel" style="display:flex;flex-direction:column;gap:16px;">
+      <div class="card card-pad" style="opacity:.4;pointer-events:none" id="gradeCard">
+        <div class="section-label">Grade & Score</div>
+        <div class="grade-row" id="gradeRow">
+          <button class="grade-btn" onclick="setGrade('A+')">A+</button>
+          <button class="grade-btn" onclick="setGrade('A')">A</button>
+          <button class="grade-btn" onclick="setGrade('B')">B</button>
+          <button class="grade-btn" onclick="setGrade('C+')">C+</button>
+          <button class="grade-btn" onclick="setGrade('C')">C</button>
+          <button class="grade-btn" onclick="setGrade('F')">F</button>
+        </div>
+        <div class="divider"></div>
+        <div class="section-label">Score (out of 100)</div>
+        <input type="number" class="input" id="scoreInput" min="0" max="100" placeholder="Enter score" onchange="saveScore()">
+      </div>
+
+      <div class="card card-pad" style="opacity:.4;pointer-events:none" id="notesCard">
+        <div class="between" style="margin-bottom:12px">
+          <div class="section-label" style="margin:0">Private Notes</div>
+          <span style="font-size:12px;color:var(--text-4)">Only you can see these</span>
+        </div>
+        <textarea class="input" id="noteInput" placeholder="Add a note about this student…" style="min-height:80px;font-size:13px"></textarea>
+        <button class="btn btn-secondary btn-sm btn-full" style="margin-top:8px" onclick="addNote()">+ Add note</button>
+        <div id="notesList" style="margin-top:12px"></div>
+      </div>
+
+      <div class="card card-pad" style="opacity:.4;pointer-events:none" id="actionsCard">
+        <div class="section-label">Quick Actions</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <a href="guide-chat.html" class="btn btn-secondary btn-sm btn-full">💬 Send Message</a>
+          <a href="review-submissions.html" class="btn btn-secondary btn-sm btn-full">📝 Review Submission</a>
+          <button class="btn btn-sm btn-full" style="background:var(--yellow-bg);color:var(--yellow);border:1px solid #fcd34d;font-weight:600" onclick="flagAtRisk()">⚠️ Flag At-Risk</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+const STUDENTS = [
+  { id:'rahul',  name:'Rahul Sharma',  project:'AI Resume Analyzer',            uni:'IIT Bombay',  color:'#0570de', online:true,  progress:60, risk:'low',
+    milestones:[
+      { title:'Idea & Scope',        done:true,   date:'Mar 1', note:'Excellent proposal, well-scoped ML project.' },
+      { title:'UI / Prototype',      done:true,   date:'Mar 8', note:'Clean Figma prototype shared. Needs mobile view.' },
+      { title:'Backend Development', done:false,  date:'Mar 18', active:true },
+      { title:'Testing & QA',        done:false,  date:'Mar 25' },
+      { title:'Final Submission',    done:false,  date:'Apr 1'  },
+    ]},
+  { id:'ananya', name:'Ananya Patel',  project:'Student Perf. Predictor',       uni:'VIT Vellore', color:'#a855f7', online:true,  progress:40, risk:'med',
+    milestones:[
+      { title:'Idea & Scope',        done:true,   date:'Mar 2' },
+      { title:'UI / Prototype',      done:true,   date:'Mar 10' },
+      { title:'Backend Development', done:false,  date:'Mar 20', active:true },
+      { title:'Testing & QA',        done:false,  date:'Mar 27' },
+      { title:'Final Submission',    done:false,  date:'Apr 3'  },
+    ]},
+  { id:'vikram', name:'Vikram Rao',    project:'Cyber Threat Detector',         uni:'BITS Pilani', color:'#1a7f37', online:false, progress:100, risk:'low',
+    milestones:[
+      { title:'Idea & Scope',        done:true,  date:'Feb 28' },
+      { title:'UI / Prototype',      done:true,  date:'Mar 5' },
+      { title:'Backend Development', done:true,  date:'Mar 12' },
+      { title:'Testing & QA',        done:true,  date:'Mar 18' },
+      { title:'Final Submission',    done:true,  date:'Mar 22' },
+    ]},
+  { id:'priya',  name:'Priya Singh',   project:'AI Resume Analyzer',            uni:'NIT Trichy',  color:'#0353a4', online:false, progress:55, risk:'low',
+    milestones:[
+      { title:'Idea & Scope',        done:true,  date:'Mar 3' },
+      { title:'UI / Prototype',      done:true,  date:'Mar 11' },
+      { title:'Backend Development', done:false, date:'Mar 19', active:true },
+      { title:'Testing & QA',        done:false, date:'Mar 26' },
+      { title:'Final Submission',    done:false, date:'Apr 2'  },
+    ]},
+  { id:'mohit',  name:'Mohit Verma',   project:'Smart Campus App',              uni:'DTU Delhi',   color:'#92400e', online:false, progress:20, risk:'high',
+    milestones:[
+      { title:'Idea & Scope',        done:true,  date:'Mar 5' },
+      { title:'UI / Prototype',      done:false, date:'Mar 15', active:true, note:'Overdue by 8 days. Follow up required.' },
+      { title:'Backend Development', done:false, date:'Mar 22' },
+      { title:'Testing & QA',        done:false, date:'Mar 29' },
+      { title:'Final Submission',    done:false, date:'Apr 5'  },
+    ]},
+  { id:'sneha',  name:'Sneha Kumar',   project:'IoT Weather Monitor',           uni:'VJTI Mumbai', color:'#0891b2', online:true,  progress:90, risk:'low',
+    milestones:[
+      { title:'Idea & Scope',        done:true,  date:'Mar 1' },
+      { title:'UI / Prototype',      done:true,  date:'Mar 6' },
+      { title:'Backend Development', done:true,  date:'Mar 13' },
+      { title:'Testing & QA',        done:true,  date:'Mar 19' },
+      { title:'Final Submission',    done:false, date:'Mar 28', active:true },
+    ]},
+];
+
+let currentId = null;
+let notes = JSON.parse(localStorage.getItem('guide_student_notes') || '{}');
+let grades = JSON.parse(localStorage.getItem('guide_student_grades') || '{}');
+let scores = JSON.parse(localStorage.getItem('guide_student_scores') || '{}');
+let riskOverrides = JSON.parse(localStorage.getItem('guide_student_risk') || '{}');
+
+function filterStudents(q) {
+  const lq = q.toLowerCase();
+  const filtered = q ? STUDENTS.filter(s => s.name.toLowerCase().includes(lq) || s.project.toLowerCase().includes(lq)) : STUDENTS;
+  renderList(filtered);
+}
+
+function renderList(students) {
+  const riskLabel = { low:'On track', med:'Needs attention', high:'At risk' };
+  const riskColor = { low:'var(--green)', med:'var(--yellow)', high:'var(--red)' };
+  document.getElementById('studentList').innerHTML = students.map(s => {
+    const risk = riskOverrides[s.id] || s.risk;
+    return `
+    <div class="student-card-item ${currentId === s.id ? 'active' : ''}" onclick="selectStudent('${s.id}')">
+      <div class="sci-av" style="background:${s.color}">
+        ${s.name[0]}
+        ${s.online ? '<div class="sci-online"></div>' : ''}
+      </div>
+      <div class="sci-body">
+        <div class="sci-name">${s.name}</div>
+        <div class="sci-meta">${s.project}</div>
+      </div>
+      <div class="sci-right">
+        <div class="sci-pct">${s.progress}%</div>
+        <div class="sci-status" style="color:${riskColor[risk]};font-size:10px;font-weight:600">${riskLabel[risk]}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectStudent(id) {
+  currentId = id;
+  renderList(STUDENTS);
+  renderDetail();
+  // Unlock action panels
+  document.getElementById('gradeCard').style.opacity = '1';
+  document.getElementById('gradeCard').style.pointerEvents = 'auto';
+  document.getElementById('notesCard').style.opacity = '1';
+  document.getElementById('notesCard').style.pointerEvents = 'auto';
+  document.getElementById('actionsCard').style.opacity = '1';
+  document.getElementById('actionsCard').style.pointerEvents = 'auto';
+  // Load grade/score
+  const g = grades[id] || '';
+  document.querySelectorAll('.grade-btn').forEach(b => b.classList.toggle('selected', b.textContent === g));
+  document.getElementById('scoreInput').value = scores[id] || '';
+  renderNotes();
+}
+
+function renderDetail() {
+  const s = STUDENTS.find(x => x.id === currentId);
+  if (!s) return;
+  const risk = riskOverrides[s.id] || s.risk;
+  const riskBadge = {
+    low: '<span class="badge risk-low">✓ On track</span>',
+    med: '<span class="badge risk-med">⚠ Needs attention</span>',
+    high: '<span class="badge risk-high">🔴 At risk</span>',
+  }[risk];
+
+  const doneCount = s.milestones.filter(m => m.done).length;
+
+  document.getElementById('detailPanel').innerHTML = `
+    <!-- Hero -->
+    <div class="card student-hero">
+      <div class="hero-av" style="background:${s.color}">${s.name[0]}</div>
+      <div style="flex:1;min-width:0">
+        <div class="hero-name">${s.name}</div>
+        <div class="hero-meta">${s.project} · ${s.uni}</div>
+        <div class="hero-tags">
+          ${riskBadge}
+          <span class="badge badge-blue">${s.progress}% progress</span>
+          ${s.online ? '<span class="badge badge-green">● Online</span>' : '<span class="badge badge-gray">○ Offline</span>'}
+        </div>
+      </div>
+    </div>
+
+    <!-- Mini stats -->
+    <div class="mini-stats">
+      <div class="mini-stat">
+        <div class="ms-val">${doneCount}/5</div>
+        <div class="ms-label">Milestones</div>
+      </div>
+      <div class="mini-stat">
+        <div class="ms-val">${grades[s.id] || '–'}</div>
+        <div class="ms-label">Grade</div>
+      </div>
+      <div class="mini-stat">
+        <div class="ms-val">${scores[s.id] || '–'}</div>
+        <div class="ms-label">Score</div>
+      </div>
+    </div>
+
+    <!-- Milestone stepper -->
+    <div class="card card-pad">
+      <div class="between" style="margin-bottom:4px">
+        <div class="section-label" style="margin:0">Project Milestones</div>
+        <span style="font-size:12px;color:var(--text-4)">${doneCount} of 5 complete</span>
+      </div>
+      <div class="divider"></div>
+      <div style="height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;margin-bottom:16px">
+        <div style="height:100%;width:${s.progress}%;background:${s.color};border-radius:3px;transition:width .6s"></div>
+      </div>
+      <div class="milestone-stepper">
+        ${s.milestones.map((m, i) => `
+          <div class="ms-step">
+            <div class="ms-step-left">
+              <div class="ms-dot ${m.done ? 'done' : m.active ? 'active' : 'pending'}">${m.done ? '✓' : i+1}</div>
+              ${i < s.milestones.length - 1 ? `<div class="ms-line ${m.done ? 'done' : ''}"></div>` : ''}
+            </div>
+            <div class="ms-step-body">
+              <div style="display:flex;align-items:center;gap:8px;justify-content:space-between">
+                <div class="ms-step-title" style="color:${m.done ? 'var(--text)' : m.active ? 'var(--blue)' : 'var(--text-3)'}">${m.title}</div>
+                <span style="font-size:11px;color:var(--text-4)">Due ${m.date}</span>
+              </div>
+              ${m.note ? `<div class="ms-step-note">${m.note}</div>` : ''}
+              ${!m.done && m.active ? `<button class="ms-approve-btn" onclick="approveMilestone(${i})">✓ Approve milestone</button>` : ''}
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function approveMilestone(idx) {
+  const s = STUDENTS.find(x => x.id === currentId);
+  if (!s) return;
+  s.milestones[idx].done = true;
+  s.milestones[idx].active = false;
+  if (idx + 1 < s.milestones.length) s.milestones[idx+1].active = true;
+  const done = s.milestones.filter(m => m.done).length;
+  s.progress = Math.round((done / s.milestones.length) * 100);
+  renderDetail();
+  renderList(STUDENTS);
+}
+
+function setGrade(g) {
+  grades[currentId] = g;
+  localStorage.setItem('guide_student_grades', JSON.stringify(grades));
+  document.querySelectorAll('.grade-btn').forEach(b => b.classList.toggle('selected', b.textContent === g));
+  renderDetail();
+}
+
+function saveScore() {
+  scores[currentId] = document.getElementById('scoreInput').value;
+  localStorage.setItem('guide_student_scores', JSON.stringify(scores));
+  renderDetail();
+}
+
+function addNote() {
+  const input = document.getElementById('noteInput');
+  const text = input.value.trim();
+  if (!text) return;
+  if (!notes[currentId]) notes[currentId] = [];
+  notes[currentId].unshift({ text, time: new Date().toLocaleString() });
+  localStorage.setItem('guide_student_notes', JSON.stringify(notes));
+  input.value = '';
+  renderNotes();
+}
+
+function deleteNote(idx) {
+  notes[currentId].splice(idx, 1);
+  localStorage.setItem('guide_student_notes', JSON.stringify(notes));
+  renderNotes();
+}
+
+function renderNotes() {
+  const list = notes[currentId] || [];
+  document.getElementById('notesList').innerHTML = list.length
+    ? list.map((n, i) => `
+        <div class="note-item">
+          ${n.text}
+          <div class="note-time">${n.time}</div>
+          <button class="note-del" onclick="deleteNote(${i})">✕</button>
+        </div>`).join('')
+    : `<div style="font-size:13px;color:var(--text-4);text-align:center;padding:12px">No notes yet.</div>`;
+}
+
+function flagAtRisk() {
+  if (!currentId) return;
+  const s = STUDENTS.find(x => x.id === currentId);
+  riskOverrides[currentId] = riskOverrides[currentId] === 'high' ? s.risk : 'high';
+  localStorage.setItem('guide_student_risk', JSON.stringify(riskOverrides));
+  renderDetail();
+  renderList(STUDENTS);
+  const btn = event.target;
+  btn.textContent = riskOverrides[currentId] === 'high' ? '🔴 Flagged At-Risk' : '⚠️ Flag At-Risk';
+}
+
+// Init
+const _g = JSON.parse(localStorage.getItem('guide') || '{}');
+if (_g.name) { document.getElementById('guideName').textContent = _g.name; document.getElementById('avLetter').textContent = _g.name[0]; }
+function logout() { localStorage.removeItem('guide'); location.href = '/index.html'; }
+
+renderList(STUDENTS);
+// Auto-select first
+selectStudent(STUDENTS[0].id);
+</script>
+</body>
+</html>

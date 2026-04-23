@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schedule | Guide | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.layout { display: flex; min-height: 100vh; }
+.sidebar { position: sticky; top: 0; height: 100vh; flex-shrink: 0; }
+.main { flex: 1; min-width: 0; padding: 40px 48px; background: var(--bg); }
+
+.grid-3-1 { display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.card-pad { padding: 24px; }
+.section-label { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 14px; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+.page-header { margin-bottom: 28px; }
+.page-eyebrow { font-size: 12px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.page-title { font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+.page-sub { font-size: 14px; color: var(--text-3); margin-top: 4px; }
+.header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+
+/* Calendar */
+.cal-nav { display:flex;align-items:center;gap:12px;margin-bottom:16px; }
+.cal-title { font-size:16px;font-weight:800;color:var(--text);letter-spacing:-.3px;flex:1;text-align:center; }
+.cal-btn { width:32px;height:32px;border-radius:50%;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s; }
+.cal-btn:hover { background:var(--surface-2); }
+
+.cal-grid { display:grid;grid-template-columns:repeat(7,1fr);gap:2px; }
+.cal-day-header { text-align:center;font-size:11px;font-weight:700;color:var(--text-4);text-transform:uppercase;letter-spacing:.5px;padding:6px 0; }
+.cal-day { min-height:80px;padding:6px;border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .15s;position:relative;background:var(--surface); }
+.cal-day:hover { border-color:var(--blue);background:var(--blue-light); }
+.cal-day.today { border-color:var(--blue);background:var(--blue-light); }
+.cal-day.other-month { background:var(--bg);opacity:.5; }
+.cal-day.selected { border-color:var(--blue);background:var(--blue);color:#fff; }
+.cal-num { font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px; }
+.cal-day.today .cal-num { color:var(--blue); }
+.cal-day.selected .cal-num { color:#fff; }
+.cal-dots { display:flex;gap:3px;flex-wrap:wrap;margin-top:2px; }
+.cal-dot { width:6px;height:6px;border-radius:50%; }
+
+/* Meeting cards */
+.meeting-item { padding:14px;border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:10px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden; }
+.meeting-item::before { content:'';position:absolute;left:0;top:0;bottom:0;width:3px; }
+.meeting-item:hover { box-shadow:var(--shadow); }
+.mi-color-blue::before { background:var(--blue); }
+.mi-color-green::before { background:var(--green); }
+.mi-color-purple::before { background:#a855f7; }
+.mi-color-orange::before { background:#f59e0b; }
+.mi-time { font-size:12px;font-weight:600;color:var(--text-4);margin-bottom:4px;padding-left:10px; }
+.mi-title { font-size:14px;font-weight:700;color:var(--text);padding-left:10px; }
+.mi-student { font-size:12px;color:var(--text-3);margin-top:3px;padding-left:10px;display:flex;align-items:center;gap:6px; }
+.mi-av { width:18px;height:18px;border-radius:50%;color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.mi-actions { display:flex;gap:6px;margin-top:10px;padding-left:10px; }
+
+/* Form */
+.modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px; }
+.modal { background:var(--surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-xl);width:100%;max-width:480px;padding:28px; }
+.modal-title { font-size:18px;font-weight:800;color:var(--text);margin-bottom:20px;letter-spacing:-.3px; }
+.field { margin-bottom:16px; }
+.modal-actions { display:flex;gap:10px;justify-content:flex-end;margin-top:20px; }
+
+/* Upcoming list -->
+.upcoming-item { display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border); }
+.upcoming-item:last-child { border-bottom:none; }
+.ui-date { width:44px;height:44px;border-radius:var(--radius);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;background:var(--bg); }
+.ui-date-num { font-size:16px;font-weight:800;color:var(--text);line-height:1; }
+.ui-date-mon { font-size:10px;font-weight:600;color:var(--text-4);text-transform:uppercase;letter-spacing:.5px; }
+.ui-body { flex:1;min-width:0; }
+.ui-title { font-size:13px;font-weight:600;color:var(--text); }
+.ui-meta { font-size:12px;color:var(--text-4);margin-top:2px; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Prashik<span>shan</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Guide Panel</div>
+    <a class="nav-item" href="guide-dashboard.html"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item" href="guide-applications.html"><span class="nav-icon">📋</span>Applications</a>
+    <a class="nav-item" href="review-submissions.html"><span class="nav-icon">📝</span>Review Submissions</a>
+    <a class="nav-item" href="guide-rubric.html"><span class="nav-icon">📐</span>Rubric Grading</a>
+    <a class="nav-item" href="guide-announcements.html"><span class="nav-icon">📢</span>Announcements</a>
+    <a class="nav-item" href="guide-chat.html"><span class="nav-icon">💬</span>Student Chat</a>
+    <a class="nav-item" href="guide-analytics.html"><span class="nav-icon">📊</span>Analytics</a>
+    <a class="nav-item" href="guide-students.html"><span class="nav-icon">👥</span>Student Tracker</a>
+    <a class="nav-item active" href="guide-schedule.html"><span class="nav-icon">🗓</span>Schedule</a>
+    <div class="nav-group-label">Account</div>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">→</span>Sign out</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" style="background:#f59e0b;color:#1a1f36" id="avLetter">G</div>
+      <div>
+        <div class="user-name" id="guideName">Guide</div>
+        <div class="user-role">Expert Guide</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="header-row page-header fade-up">
+    <div>
+      <div class="page-eyebrow">Guide Panel</div>
+      <div class="page-title">Schedule & Meetings</div>
+      <div class="page-sub">Manage student review sessions, deadlines, and office hours.</div>
+    </div>
+    <button class="btn btn-primary" onclick="openModal()">+ Schedule Meeting</button>
+  </div>
+
+  <div class="grid-3-1 fade-up d1">
+    <!-- Calendar + Day view -->
+    <div>
+      <div class="card card-pad" style="margin-bottom:20px">
+        <div class="cal-nav">
+          <button class="cal-btn" onclick="prevMonth()">‹</button>
+          <div class="cal-title" id="calTitle"></div>
+          <button class="cal-btn" onclick="nextMonth()">›</button>
+        </div>
+        <div class="cal-grid" id="calDayHeaders"></div>
+        <div class="cal-grid" style="margin-top:4px" id="calGrid"></div>
+      </div>
+
+      <div class="card card-pad">
+        <div class="between" style="margin-bottom:4px">
+          <div class="section-label" style="margin:0" id="dayTitle">Today's Schedule</div>
+          <span style="font-size:13px;color:var(--text-4)" id="dayCount">0 meetings</span>
+        </div>
+        <div class="divider"></div>
+        <div id="dayMeetings"></div>
+      </div>
+    </div>
+
+    <!-- Sidebar: upcoming + legend -->
+    <div>
+      <div class="card card-pad" style="margin-bottom:16px">
+        <div class="section-label">Upcoming Meetings</div>
+        <div id="upcomingList"></div>
+      </div>
+
+      <div class="card card-pad">
+        <div class="section-label">Legend</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2)"><div style="width:12px;height:12px;border-radius:50%;background:var(--blue)"></div>Review Session</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2)"><div style="width:12px;height:12px;border-radius:50%;background:var(--green)"></div>Milestone Approval</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2)"><div style="width:12px;height:12px;border-radius:50%;background:#a855f7"></div>Office Hours</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2)"><div style="width:12px;height:12px;border-radius:50%;background:#f59e0b"></div>Deadline</div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-label">This Month</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="text-align:center;padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+            <div style="font-size:22px;font-weight:800;color:var(--text)" id="totalMeetings">0</div>
+            <div style="font-size:11px;color:var(--text-4);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Total</div>
+          </div>
+          <div style="text-align:center;padding:12px;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+            <div style="font-size:22px;font-weight:800;color:var(--blue)" id="upcomingCount">0</div>
+            <div style="font-size:11px;color:var(--text-4);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Upcoming</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-title">📅 Schedule a Meeting</div>
+    <div class="field">
+      <label class="label">Meeting Type</label>
+      <select class="input" id="meetType">
+        <option value="review">Review Session</option>
+        <option value="milestone">Milestone Approval</option>
+        <option value="office">Office Hours</option>
+        <option value="deadline">Deadline</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="label">Student</label>
+      <select class="input" id="meetStudent">
+        <option value="">All Students / General</option>
+        <option value="Rahul Sharma">Rahul Sharma</option>
+        <option value="Ananya Patel">Ananya Patel</option>
+        <option value="Vikram Rao">Vikram Rao</option>
+        <option value="Priya Singh">Priya Singh</option>
+        <option value="Mohit Verma">Mohit Verma</option>
+        <option value="Sneha Kumar">Sneha Kumar</option>
+      </select>
+    </div>
+    <div class="field">
+      <label class="label">Title / Agenda</label>
+      <input type="text" class="input" id="meetTitle" placeholder="e.g. Phase 2 review, Backend code walkthrough">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="field">
+        <label class="label">Date</label>
+        <input type="date" class="input" id="meetDate">
+      </div>
+      <div class="field">
+        <label class="label">Time</label>
+        <input type="time" class="input" id="meetTime">
+      </div>
+    </div>
+    <div class="field">
+      <label class="label">Meeting Link (optional)</label>
+      <input type="url" class="input" id="meetLink" placeholder="https://meet.google.com/...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveMeeting()">Schedule</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+let meetings = JSON.parse(localStorage.getItem('guide_meetings') || 'null') || [
+  { id:1, type:'review',    student:'Rahul Sharma',  title:'Phase 2 code review',    date:'2026-03-24', time:'10:00', color:'#0570de',  studentColor:'#0570de' },
+  { id:2, type:'office',    student:'',              title:'Open Office Hours',       date:'2026-03-24', time:'14:00', color:'#a855f7',  studentColor:'' },
+  { id:3, type:'milestone', student:'Vikram Rao',    title:'Final milestone approval',date:'2026-03-25', time:'11:00', color:'#1a7f37',  studentColor:'#1a7f37' },
+  { id:4, type:'review',    student:'Ananya Patel',  title:'Data pipeline review',   date:'2026-03-26', time:'15:30', color:'#0570de',  studentColor:'#a855f7' },
+  { id:5, type:'deadline',  student:'Mohit Verma',   title:'UI Prototype deadline',  date:'2026-03-28', time:'23:59', color:'#f59e0b',  studentColor:'#92400e' },
+  { id:6, type:'review',    student:'Priya Singh',   title:'Backend walkthrough',    date:'2026-03-31', time:'10:00', color:'#0570de',  studentColor:'#0353a4' },
+];
+
+const TYPE_COLORS = { review:'#0570de', milestone:'#1a7f37', office:'#a855f7', deadline:'#f59e0b' };
+const TYPE_LABELS = { review:'Review Session', milestone:'Milestone Approval', office:'Office Hours', deadline:'Deadline' };
+const STUDENT_COLORS = { 'Rahul Sharma':'#0570de','Ananya Patel':'#a855f7','Vikram Rao':'#1a7f37','Priya Singh':'#0353a4','Mohit Verma':'#92400e','Sneha Kumar':'#0891b2' };
+
+let currentDate = new Date(2026, 2, 24); // March 24 2026
+let selectedDay = 24;
+
+function prevMonth() { currentDate.setMonth(currentDate.getMonth() - 1); renderCal(); }
+function nextMonth() { currentDate.setMonth(currentDate.getMonth() + 1); renderCal(); }
+
+function renderCal() {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calTitle').textContent = monthNames[month] + ' ' + year;
+
+  const headers = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  document.getElementById('calDayHeaders').innerHTML = headers.map(h => `<div class="cal-day-header">${h}</div>`).join('');
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrev = new Date(year, month, 0).getDate();
+
+  let cells = [];
+  for (let i = firstDay - 1; i >= 0; i--) cells.push({ day: daysInPrev - i, otherMonth: true });
+  for (let d = 1; d <= daysInMonth; d++) cells.push({ day: d, otherMonth: false });
+  while (cells.length % 7 !== 0) cells.push({ day: cells.length - daysInMonth - firstDay + 1, otherMonth: true });
+
+  document.getElementById('calGrid').innerHTML = cells.map(c => {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(c.day).padStart(2,'0')}`;
+    const dayMeetings = meetings.filter(m => m.date === dateStr);
+    const isToday = !c.otherMonth && c.day === 24 && month === 2 && year === 2026;
+    const isSelected = !c.otherMonth && c.day === selectedDay && month === currentDate.getMonth();
+    return `<div class="cal-day ${c.otherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''}" onclick="selectDay(${c.day}, ${c.otherMonth})">
+      <div class="cal-num">${c.day}</div>
+      ${dayMeetings.length ? `<div class="cal-dots">${dayMeetings.map(m => `<div class="cal-dot" style="background:${m.color}"></div>`).join('')}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  renderStats();
+}
+
+function selectDay(day, otherMonth) {
+  if (otherMonth) return;
+  selectedDay = day;
+  renderCal();
+  renderDayMeetings();
+}
+
+function renderDayMeetings() {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(selectedDay).padStart(2,'0')}`;
+  const dayMs = meetings.filter(m => m.date === dateStr).sort((a,b) => a.time.localeCompare(b.time));
+
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('dayTitle').textContent = `${months[month]} ${selectedDay}`;
+  document.getElementById('dayCount').textContent = dayMs.length + ' meeting' + (dayMs.length !== 1 ? 's' : '');
+
+  document.getElementById('dayMeetings').innerHTML = dayMs.length
+    ? dayMs.map(m => `
+        <div class="meeting-item mi-color-${m.type === 'review' ? 'blue' : m.type === 'milestone' ? 'green' : m.type === 'office' ? 'purple' : 'orange'}">
+          <div class="mi-time">${formatTime(m.time)} · ${TYPE_LABELS[m.type]}</div>
+          <div class="mi-title">${m.title}</div>
+          ${m.student ? `<div class="mi-student"><div class="mi-av" style="background:${m.studentColor || '#666'}">${m.student[0]}</div>${m.student}</div>` : '<div class="mi-student">All students</div>'}
+          <div class="mi-actions">
+            ${m.link ? `<a href="${m.link}" target="_blank" class="btn btn-sm btn-secondary">🔗 Join meeting</a>` : ''}
+            <button class="btn btn-sm btn-secondary" onclick="deleteMeeting(${m.id})">✕ Remove</button>
+          </div>
+        </div>`).join('')
+    : `<div style="text-align:center;padding:32px 20px;color:var(--text-4)"><div style="font-size:30px;margin-bottom:8px;opacity:.4">📅</div><div style="font-size:13px;font-weight:600;color:var(--text-3)">No meetings scheduled</div><div style="font-size:12px;margin-top:4px">Click "+ Schedule Meeting" to add one</div></div>`;
+}
+
+function renderUpcoming() {
+  const today = '2026-03-24';
+  const upcoming = meetings.filter(m => m.date >= today).sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)).slice(0, 5);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('upcomingList').innerHTML = upcoming.length
+    ? upcoming.map(m => {
+        const d = new Date(m.date + 'T12:00');
+        return `
+        <div class="upcoming-item">
+          <div class="ui-date">
+            <div class="ui-date-num">${d.getDate()}</div>
+            <div class="ui-date-mon">${months[d.getMonth()]}</div>
+          </div>
+          <div class="ui-body">
+            <div class="ui-title">${m.title}</div>
+            <div class="ui-meta">${formatTime(m.time)} · ${m.student || 'All students'}</div>
+          </div>
+          <div style="width:10px;height:10px;border-radius:50%;background:${m.color};flex-shrink:0;margin-top:4px"></div>
+        </div>`;
+      }).join('')
+    : '<div style="text-align:center;padding:20px;color:var(--text-4);font-size:13px">No upcoming meetings</div>';
+}
+
+function renderStats() {
+  const today = '2026-03-24';
+  const year = currentDate.getFullYear();
+  const month = String(currentDate.getMonth() + 1).padStart(2,'0');
+  const monthStr = `${year}-${month}`;
+  const monthMs = meetings.filter(m => m.date.startsWith(monthStr));
+  const upcoming = meetings.filter(m => m.date >= today);
+  document.getElementById('totalMeetings').textContent = monthMs.length;
+  document.getElementById('upcomingCount').textContent = upcoming.length;
+}
+
+function formatTime(t) {
+  const [h, m] = t.split(':');
+  const hr = parseInt(h);
+  return `${hr > 12 ? hr - 12 : hr || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
+}
+
+function deleteMeeting(id) {
+  meetings = meetings.filter(m => m.id !== id);
+  saveMeetings();
+  renderCal();
+  renderDayMeetings();
+  renderUpcoming();
+}
+
+function saveMeetings() {
+  localStorage.setItem('guide_meetings', JSON.stringify(meetings));
+}
+
+function openModal() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('meetDate').value = today;
+  document.getElementById('meetTime').value = '10:00';
+  document.getElementById('meetTitle').value = '';
+  document.getElementById('meetLink').value = '';
+  document.getElementById('modal').style.display = 'flex';
+}
+
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+function saveMeeting() {
+  const type = document.getElementById('meetType').value;
+  const student = document.getElementById('meetStudent').value;
+  const title = document.getElementById('meetTitle').value.trim();
+  const date = document.getElementById('meetDate').value;
+  const time = document.getElementById('meetTime').value;
+  const link = document.getElementById('meetLink').value.trim();
+
+  if (!title || !date) { alert('Please fill in title and date.'); return; }
+
+  meetings.push({
+    id: Date.now(),
+    type, student, title, date, time,
+    color: TYPE_COLORS[type],
+    studentColor: STUDENT_COLORS[student] || '',
+    link
+  });
+  saveMeetings();
+  closeModal();
+  renderCal();
+  renderDayMeetings();
+  renderUpcoming();
+}
+
+// Init
+const _g = JSON.parse(localStorage.getItem('guide') || '{}');
+if (_g.name) { document.getElementById('guideName').textContent = _g.name; document.getElementById('avLetter').textContent = _g.name[0]; }
+function logout() { localStorage.removeItem('guide'); location.href = '/index.html'; }
+
+renderCal();
+renderDayMeetings();
+renderUpcoming();
+</script>
+</body>
+</html>

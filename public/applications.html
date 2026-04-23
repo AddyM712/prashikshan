@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Applications | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.filter-bar { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
+.fpill { padding:8px 18px; border:1px solid var(--border); border-radius:20px; font-size:13px; font-weight:600; color:var(--text-3); background:var(--surface); cursor:pointer; transition:all .15s; }
+.fpill:hover { border-color:var(--border-dark); color:var(--text); }
+.fpill.on { background:var(--blue); color:#fff; border-color:var(--blue); }
+
+.app-card { padding:22px; margin-bottom:12px; transition:all .18s; }
+.app-card:hover { box-shadow:var(--shadow); border-color:var(--border-dark); }
+.ac-row { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.ac-av { width:42px; height:42px; border-radius:50%; color:#fff; font-size:15px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.ac-body { flex:1; min-width:0; }
+.ac-title { font-size:15px; font-weight:700; color:var(--text); margin-bottom:4px; }
+.ac-meta { display:flex; gap:14px; flex-wrap:wrap; }
+.ac-meta span { font-size:13px; color:var(--text-4); }
+.ac-right { display:flex; align-items:center; gap:12px; flex-shrink:0; }
+.ac-date { font-size:12px; color:var(--text-4); }
+
+.skills-row { display:flex; gap:6px; flex-wrap:wrap; margin-top:12px; padding-top:12px; border-top:1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <a href="dashboard.html" class="sidebar-logo">Prashik<span>shan</span></a>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Main</div>
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item" href="marketplace.html"><span class="nav-icon">🔍</span>Marketplace</a>
+    <a class="nav-item active" href="applications.html"><span class="nav-icon">📋</span>Applications</a>
+    <a class="nav-item" href="connections.html"><span class="nav-icon">👥</span>Connections</a>
+    <div class="nav-group-label">Account</div>
+    <a class="nav-item" href="progress-journal.html"><span class="nav-icon">📓</span>Progress Journal</a>
+    <a class="nav-item" href="achievements.html"><span class="nav-icon">🏆</span>Achievements</a>
+    <a class="nav-item" href="notifications.html"><span class="nav-icon">🔔</span>Notifications</a>
+    <a class="nav-item" href="profile.html"><span class="nav-icon">👤</span>My Profile</a>
+    <a class="nav-item" href="submit-project.html"><span class="nav-icon">📤</span>Submit Work</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Guide Chat</a>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">→</span>Sign out</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" id="avLetter">S</div>
+      <div><div class="user-name" id="sidebarName">Student</div><div class="user-role">Student</div></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="header-row page-header fade-up">
+    <div>
+      <div class="page-eyebrow">My Work</div>
+      <div class="page-title">Applications</div>
+      <div class="page-sub">Track all your project applications and their status.</div>
+    </div>
+    <a href="marketplace.html" class="btn btn-primary">Browse more projects</a>
+  </div>
+
+  <div class="filter-bar fade-up d1">
+    <div class="fpill on" onclick="filter('all',this)">All</div>
+    <div class="fpill" onclick="filter('Applied',this)">Applied</div>
+    <div class="fpill" onclick="filter('Shortlisted',this)">Shortlisted</div>
+    <div class="fpill" onclick="filter('Rejected',this)">Rejected</div>
+  </div>
+
+  <div id="list" class="fade-up d2"></div>
+</main>
+</div>
+
+<script>
+const COLORS = ['#0570de','#a855f7','#1a7f37','#c2410c','#0353a4'];
+let allApps = [];
+let activeFilter = 'all';
+
+function statusBadge(s) {
+  const map = { Applied:'badge-blue', Shortlisted:'badge-green', Rejected:'badge-red', Pending:'badge-yellow' };
+  return `<span class="badge ${map[s]||'badge-gray'}">${s}</span>`;
+}
+
+function filter(f, el) {
+  activeFilter = f;
+  document.querySelectorAll('.fpill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  render();
+}
+
+function render() {
+  const list = document.getElementById('list');
+  const shown = activeFilter === 'all' ? allApps : allApps.filter(a => a.status === activeFilter);
+  if (!shown.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">${activeFilter==='all'?'No applications yet':'No '+activeFilter.toLowerCase()+' applications'}</div><p>${activeFilter==='all'?'Apply to a project from the marketplace to get started.':'Try a different filter.'}</p></div>`;
+    return;
+  }
+  list.innerHTML = shown.map((a,i) => `
+    <div class="app-card card">
+      <div class="ac-row">
+        <div class="ac-av" style="background:${COLORS[i%COLORS.length]}">${(a.title||a.name||'P')[0]}</div>
+        <div class="ac-body">
+          <div class="ac-title">${a.title||a.name||'Project'}</div>
+          <div class="ac-meta">
+            ${a.guide ? `<span>🎓 ${a.guide}</span>` : ''}
+            ${a.domain ? `<span>🏷 ${a.domain}</span>` : ''}
+            ${a.duration ? `<span>⏱ ${a.duration}</span>` : ''}
+          </div>
+        </div>
+        <div class="ac-right">
+          ${statusBadge(a.status||'Applied')}
+        </div>
+      </div>
+      ${a.skills && a.skills.length ? `<div class="skills-row">${a.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>` : ''}
+    </div>`).join('');
+}
+
+function load() {
+  // Load from localStorage (set by marketplace apply)
+  allApps = JSON.parse(localStorage.getItem('applications') || '[]');
+  // Also try to load from API
+  const token = localStorage.getItem('token');
+  if (token) {
+    fetch('/api/student/applications', { headers:{'Authorization':'Bearer '+token} })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data && data.length) {
+          // Merge API data
+          const apiApps = data.map(a => ({
+            title: a.project?.title || 'Project',
+            guide: a.project?.guide,
+            domain: a.project?.domain,
+            duration: a.project?.duration,
+            skills: a.project?.skills || [],
+            status: a.status || 'Applied'
+          }));
+          allApps = [...apiApps, ...allApps.filter(l => !apiApps.find(a => a.title === l.title))];
+        }
+        render();
+      }).catch(() => render());
+  } else { render(); }
+}
+
+const _s = JSON.parse(localStorage.getItem('student'));
+if (!_s) { location.href='/student-login.html'; }
+else {
+  document.getElementById('sidebarName').textContent = _s.fullName||'Student';
+  document.getElementById('avLetter').textContent = (_s.fullName||'S').charAt(0).toUpperCase();
+}
+function logout() { localStorage.clear(); location.href='/index.html'; }
+load();
+</script>
+</body>
+</html>

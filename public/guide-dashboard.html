@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guide Dashboard | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Layout fix */
+.layout { display: flex; min-height: 100vh; }
+.sidebar { position: sticky; top: 0; height: 100vh; flex-shrink: 0; }
+.main { flex: 1; min-width: 0; padding: 40px 48px; background: var(--bg); }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
+
+.stat-card { padding: 22px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.stat-icon { font-size: 20px; margin-bottom: 10px; }
+.stat-label { font-size: 12px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+.stat-value { font-size: 30px; font-weight: 800; color: var(--text); letter-spacing: -1px; line-height: 1; }
+.stat-sub { font-size: 12px; color: var(--text-4); margin-top: 6px; }
+
+.proj-row { padding: 20px 0; border-bottom: 1px solid var(--border); }
+.proj-row:last-child { border-bottom: none; }
+.pr-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.pr-left { display: flex; align-items: center; gap: 12px; }
+.pr-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.pr-name { font-size: 14px; font-weight: 700; color: var(--text); }
+.pr-project { font-size: 12px; color: var(--text-4); margin-top: 2px; }
+.pr-prog-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 12px; color: var(--text-3); }
+.pr-actions { display: flex; gap: 8px; margin-top: 12px; }
+
+.milestone-list { display: flex; flex-direction: column; gap: 12px; }
+.milestone-item { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--text-2); cursor: pointer; }
+.milestone-item input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--blue); cursor: pointer; flex-shrink: 0; }
+.milestone-item.checked { color: var(--text-4); text-decoration: line-through; }
+
+.app-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+.app-row:last-child { border-bottom: none; }
+.app-info { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.app-av { width: 32px; height: 32px; border-radius: 50%; background: var(--surface-2); color: var(--text-3); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--border); }
+.app-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.app-project { font-size: 12px; color: var(--text-4); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.app-btns { display: flex; gap: 6px; flex-shrink: 0; }
+
+.section-label { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 14px; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.card-pad { padding: 24px; }
+.page-header { margin-bottom: 32px; }
+.page-eyebrow { font-size: 12px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.page-title { font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+.page-sub { font-size: 14px; color: var(--text-3); margin-top: 4px; }
+.header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">Prashik<span>shan</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Guide Panel</div>
+    <a class="nav-item active" href="guide-dashboard.html"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item" href="guide-applications.html"><span class="nav-icon">📋</span>Applications</a>
+    <a class="nav-item" href="review-submissions.html"><span class="nav-icon">📝</span>Review Submissions</a>
+    <a class="nav-item" href="guide-rubric.html"><span class="nav-icon">📐</span>Rubric Grading</a>
+    <a class="nav-item" href="guide-announcements.html"><span class="nav-icon">📢</span>Announcements</a>
+    <a class="nav-item" href="guide-chat.html"><span class="nav-icon">💬</span>Student Chat</a>
+    <a class="nav-item" href="guide-analytics.html"><span class="nav-icon">📊</span>Analytics</a>
+    <a class="nav-item" href="guide-students.html"><span class="nav-icon">👥</span>Student Tracker</a>
+    <a class="nav-item" href="guide-schedule.html"><span class="nav-icon">🗓</span>Schedule</a>
+    <div class="nav-group-label">Account</div>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">→</span>Sign out</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" style="background:#f59e0b;color:#1a1f36" id="avLetter">G</div>
+      <div>
+        <div class="user-name" id="guideName">Guide</div>
+        <div class="user-role">Expert Guide</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="header-row page-header fade-up">
+    <div>
+      <div class="page-eyebrow">Guide Dashboard</div>
+      <div class="page-title">Student Projects</div>
+      <div class="page-sub">Monitor progress, approve milestones, and review submissions.</div>
+    </div>
+    <a href="guide-applications.html" class="btn btn-primary">View applications</a>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid fade-up d1">
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-label">Total Students</div>
+      <div class="stat-value">12</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⚙️</div>
+      <div class="stat-label">Active Projects</div>
+      <div class="stat-value">5</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🕐</div>
+      <div class="stat-label">Pending Reviews</div>
+      <div class="stat-value">3</div>
+      <div class="stat-sub" style="color:var(--red)">Needs attention</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-label">Completed</div>
+      <div class="stat-value">2</div>
+    </div>
+  </div>
+
+  <!-- Project tracker (full width) -->
+  <div class="card card-pad fade-up d2" style="margin-bottom:20px">
+    <div class="between" style="margin-bottom:4px">
+      <div class="section-label" style="margin:0">Active student projects</div>
+      <a href="review-submissions.html" style="font-size:13px;color:var(--blue);text-decoration:none;font-weight:600">Review submissions →</a>
+    </div>
+    <div class="divider"></div>
+
+    <div class="proj-row">
+      <div class="pr-top">
+        <div class="pr-left">
+          <div class="pr-avatar">R</div>
+          <div>
+            <div class="pr-name">Rahul Sharma</div>
+            <div class="pr-project">AI Resume Analyzer</div>
+          </div>
+        </div>
+        <span class="badge badge-blue">Ongoing</span>
+      </div>
+      <div class="pr-prog-row"><span>Progress</span><span id="p1text">0%</span></div>
+      <div class="progress"><div class="progress-fill" id="p1bar" style="width:0%"></div></div>
+      <div class="pr-actions">
+        <button class="btn btn-secondary btn-sm" onclick="location.href='chat.html'">💬 Message</button>
+        <button class="btn btn-secondary btn-sm" onclick="location.href='review-submissions.html'">📝 Review work</button>
+      </div>
+    </div>
+
+    <div class="proj-row">
+      <div class="pr-top">
+        <div class="pr-left">
+          <div class="pr-avatar" style="background:#a855f7">A</div>
+          <div>
+            <div class="pr-name">Ananya Patel</div>
+            <div class="pr-project">Student Performance Predictor</div>
+          </div>
+        </div>
+        <span class="badge badge-yellow">In Review</span>
+      </div>
+      <div class="pr-prog-row"><span>Progress</span><span>40%</span></div>
+      <div class="progress"><div class="progress-fill" style="width:40%"></div></div>
+      <div class="pr-actions">
+        <button class="btn btn-secondary btn-sm" onclick="location.href='chat.html'">💬 Message</button>
+        <button class="btn btn-secondary btn-sm" onclick="location.href='review-submissions.html'">📝 Review work</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Milestones + Applications -->
+  <div class="grid-2 fade-up d3">
+    <div class="card card-pad">
+      <div class="between" style="margin-bottom:16px">
+        <div class="section-label" style="margin:0">Approve milestones</div>
+        <span style="font-size:12px;color:var(--text-4)">Rahul Sharma</span>
+      </div>
+      <div class="milestone-list" id="milestones">
+        <label class="milestone-item"><input type="checkbox" onchange="updateProgress()"> Idea approved</label>
+        <label class="milestone-item"><input type="checkbox" onchange="updateProgress()"> UI completed</label>
+        <label class="milestone-item"><input type="checkbox" onchange="updateProgress()"> Backend completed</label>
+        <label class="milestone-item"><input type="checkbox" onchange="updateProgress()"> Testing done</label>
+        <label class="milestone-item"><input type="checkbox" onchange="updateProgress()"> Final submission</label>
+      </div>
+      <div class="divider"></div>
+      <div class="between">
+        <span style="font-size:13px;color:var(--text-3)">Overall progress</span>
+        <span style="font-size:13px;font-weight:700;color:var(--text)" id="milPct">0%</span>
+      </div>
+      <div class="progress" style="margin-top:8px"><div class="progress-fill" id="milBar" style="width:0%"></div></div>
+    </div>
+
+    <div class="card card-pad">
+      <div class="between" style="margin-bottom:4px">
+        <div class="section-label" style="margin:0">Recent applications</div>
+        <a href="guide-applications.html" style="font-size:13px;color:var(--blue);text-decoration:none;font-weight:600">View all</a>
+      </div>
+      <div class="divider"></div>
+      <div class="app-row">
+        <div class="app-info">
+          <div class="app-av">V</div>
+          <div style="min-width:0">
+            <div class="app-name">Vikram Rao</div>
+            <div class="app-project">AI Resume Analyzer</div>
+          </div>
+        </div>
+        <div class="app-btns">
+          <button class="btn btn-sm" style="background:var(--green-bg);color:var(--green);border:1px solid #86efac" onclick="approve(this)">Approve</button>
+          <button class="btn btn-danger btn-sm" onclick="reject(this)">Reject</button>
+        </div>
+      </div>
+      <div class="app-row">
+        <div class="app-info">
+          <div class="app-av">P</div>
+          <div style="min-width:0">
+            <div class="app-name">Priya Singh</div>
+            <div class="app-project">Cyber Threat Detector</div>
+          </div>
+        </div>
+        <div class="app-btns">
+          <button class="btn btn-sm" style="background:var(--green-bg);color:var(--green);border:1px solid #86efac" onclick="approve(this)">Approve</button>
+          <button class="btn btn-danger btn-sm" onclick="reject(this)">Reject</button>
+        </div>
+      </div>
+      <div class="app-row">
+        <div class="app-info">
+          <div class="app-av">M</div>
+          <div style="min-width:0">
+            <div class="app-name">Mohit Verma</div>
+            <div class="app-project">Smart Campus App</div>
+          </div>
+        </div>
+        <div class="app-btns">
+          <button class="btn btn-sm" style="background:var(--green-bg);color:var(--green);border:1px solid #86efac" onclick="approve(this)">Approve</button>
+          <button class="btn btn-danger btn-sm" onclick="reject(this)">Reject</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+function updateProgress() {
+  const boxes = document.querySelectorAll('#milestones input[type=checkbox]');
+  const done = [...boxes].filter(b => b.checked).length;
+  const pct = Math.round((done / boxes.length) * 100);
+  document.getElementById('milPct').textContent = pct + '%';
+  document.getElementById('milBar').style.width = pct + '%';
+  document.getElementById('p1bar').style.width = pct + '%';
+  document.getElementById('p1text').textContent = pct + '%';
+  document.querySelectorAll('.milestone-item').forEach(item => {
+    item.classList.toggle('checked', item.querySelector('input').checked);
+  });
+  localStorage.setItem('projectProgress', pct);
+}
+function approve(btn) { btn.closest('.app-btns').innerHTML = '<span class="badge badge-green">Approved</span>'; }
+function reject(btn) { btn.closest('.app-btns').innerHTML = '<span class="badge badge-red">Rejected</span>'; }
+
+const saved = localStorage.getItem('projectProgress');
+if (saved) { const p = parseInt(saved); document.getElementById('p1bar').style.width = p+'%'; document.getElementById('p1text').textContent = p+'%'; }
+
+const g = JSON.parse(localStorage.getItem('guide'));
+if (g) { document.getElementById('guideName').textContent = g.name||'Guide'; document.getElementById('avLetter').textContent = (g.name||'G')[0]; }
+function logout() { localStorage.removeItem('guide'); location.href='/index.html'; }
+</script>
+</body>
+</html>

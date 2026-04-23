@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Review Submissions | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.layout { display: flex; min-height: 100vh; }
+.sidebar { position: sticky; top: 0; height: 100vh; flex-shrink: 0; }
+.main { flex: 1; min-width: 0; padding: 40px 48px; background: var(--bg); }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.card-pad { padding: 24px; }
+
+.stabs { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+.stab { padding: 9px 18px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--text-3); background: var(--surface); cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 8px; }
+.stab:hover { border-color: var(--border-dark); color: var(--text); }
+.stab.active { border-color: var(--blue); background: var(--blue-light); color: var(--blue-dark); }
+.stab-av { width: 22px; height: 22px; border-radius: 50%; font-size: 10px; font-weight: 700; color: #fff; display: flex; align-items: center; justify-content: center; }
+
+.resource-link { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); text-decoration: none; color: var(--text-2); font-size: 14px; font-weight: 500; transition: all 0.15s; margin-bottom: 8px; }
+.resource-link:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+.rl-icon { font-size: 18px; flex-shrink: 0; }
+.rl-label { flex: 1; }
+.rl-arrow { font-size: 13px; color: var(--text-4); }
+
+.notes-box { padding: 16px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border); font-size: 14px; color: var(--text-3); line-height: 1.7; min-height: 80px; }
+
+.status-banner { padding: 16px 20px; border-radius: 10px; display: flex; align-items: center; gap: 14px; margin-bottom: 20px; border: 1px solid; }
+.sb-approved { background: var(--green-bg); border-color: #86efac; color: var(--green); }
+.sb-pending   { background: var(--yellow-bg); border-color: #fcd34d; color: var(--yellow); }
+.sb-changes   { background: var(--red-bg); border-color: #fca5a5; color: var(--red); }
+.sb-icon { font-size: 22px; }
+.sb-title { font-size: 14px; font-weight: 700; }
+.sb-sub { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+
+.section-label { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 14px; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+.page-header { margin-bottom: 32px; }
+.page-eyebrow { font-size: 12px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.page-title { font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+.page-sub { font-size: 14px; color: var(--text-3); margin-top: 4px; }
+.header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+textarea.input { resize: vertical; min-height: 120px; font-family: var(--font); }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Prashik<span>shan</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Guide Panel</div>
+    <a class="nav-item" href="guide-dashboard.html"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item" href="guide-applications.html"><span class="nav-icon">📋</span>Applications</a>
+    <a class="nav-item active" href="review-submissions.html"><span class="nav-icon">📝</span>Review Submissions</a>
+    <a class="nav-item" href="guide-chat.html"><span class="nav-icon">💬</span>Student Chat</a>
+    <a class="nav-item" href="guide-analytics.html"><span class="nav-icon">📊</span>Analytics</a>
+    <a class="nav-item" href="guide-students.html"><span class="nav-icon">👥</span>Student Tracker</a>
+    <a class="nav-item" href="guide-schedule.html"><span class="nav-icon">🗓</span>Schedule</a>
+    <div class="nav-group-label">Account</div>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">→</span>Sign out</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" style="background:#f59e0b;color:#1a1f36" id="avLetter">G</div>
+      <div>
+        <div class="user-name" id="guideName">Guide</div>
+        <div class="user-role">Expert Guide</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="header-row page-header fade-up">
+    <div>
+      <div class="page-eyebrow">Guide Panel</div>
+      <div class="page-title">Review Submissions</div>
+      <div class="page-sub">Review student project work and provide feedback.</div>
+    </div>
+    <a href="guide-dashboard.html" class="btn btn-secondary">← Back</a>
+  </div>
+
+  <div class="stabs fade-up d1">
+    <div class="stab active" onclick="loadStudent('rahul',this)">
+      <div class="stab-av" style="background:#0570de">R</div> Rahul Sharma
+    </div>
+    <div class="stab" onclick="loadStudent('ananya',this)">
+      <div class="stab-av" style="background:#a855f7">A</div> Ananya Patel
+    </div>
+  </div>
+
+  <div id="content" class="fade-up d2"></div>
+</main>
+</div>
+
+<script>
+const STUDENTS = {
+  rahul:  { name:'Rahul Sharma',  project:'AI Resume Analyzer',            uni:'IIT Bombay',  status:'pending' },
+  ananya: { name:'Ananya Patel',  project:'Student Performance Predictor', uni:'VIT Vellore', status:'pending' },
+};
+let current = 'rahul';
+let feedbacks = {};
+
+function loadStudent(key, el) {
+  current = key;
+  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function render() {
+  const s = STUDENTS[current];
+  const sub = current === 'rahul' ? JSON.parse(localStorage.getItem('projectSubmission')) : null;
+  const fb = feedbacks[current] || '';
+  const bannerHTML = {
+    approved: `<div class="status-banner sb-approved"><div class="sb-icon">✅</div><div><div class="sb-title">Project Approved</div><div class="sb-sub">You approved this submission</div></div></div>`,
+    changes:  `<div class="status-banner sb-changes"><div class="sb-icon">🔄</div><div><div class="sb-title">Changes Requested</div><div class="sb-sub">Waiting for student to resubmit</div></div></div>`,
+    pending:  `<div class="status-banner sb-pending"><div class="sb-icon">🕐</div><div><div class="sb-title">Awaiting Review</div><div class="sb-sub">This submission hasn't been reviewed yet</div></div></div>`,
+  }[s.status];
+
+  document.getElementById('content').innerHTML = `
+    <div class="grid-2">
+      <!-- Left: submission -->
+      <div>
+        <div class="card card-pad" style="margin-bottom:20px">
+          <div class="section-label">Student</div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="avatar" style="width:40px;height:40px;font-size:15px">${s.name[0]}</div>
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--text)">${s.name}</div>
+              <div style="font-size:13px;color:var(--text-4)">${s.project} · ${s.uni}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card card-pad">
+          <div class="section-label">Submitted resources</div>
+          ${sub ? `
+            <a href="${sub.github||'#'}" class="resource-link" target="_blank">
+              <span class="rl-icon">🐙</span><span class="rl-label">GitHub Repository</span><span class="rl-arrow">↗</span>
+            </a>
+            <a href="${sub.ppt||'#'}" class="resource-link" target="_blank">
+              <span class="rl-icon">📊</span><span class="rl-label">Project Presentation</span><span class="rl-arrow">↗</span>
+            </a>
+            <a href="${sub.video||'#'}" class="resource-link" target="_blank">
+              <span class="rl-icon">🎬</span><span class="rl-label">Demo Video</span><span class="rl-arrow">↗</span>
+            </a>
+            <div class="section-label" style="margin-top:20px">Student notes</div>
+            <div class="notes-box">${sub.notes || '<span style="color:var(--text-4);font-style:italic">No notes provided.</span>'}</div>
+          ` : `
+            <div style="text-align:center;padding:40px 20px;color:var(--text-4)">
+              <div style="font-size:36px;margin-bottom:12px">📭</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-3)">No submission yet</div>
+              <div style="font-size:13px;margin-top:4px">Student hasn't submitted their work</div>
+            </div>`}
+        </div>
+      </div>
+
+      <!-- Right: feedback & decision -->
+      <div>
+        ${bannerHTML}
+        <div class="card card-pad" style="margin-bottom:20px">
+          <div class="section-label">Your feedback</div>
+          <textarea class="input" id="fbInput" placeholder="Write detailed feedback for the student… What went well? What needs improvement?">${fb}</textarea>
+          <button class="btn btn-secondary btn-sm btn-full" style="margin-top:10px" onclick="saveFeedback()">Save draft</button>
+        </div>
+        <div class="card card-pad">
+          <div class="section-label">Decision</div>
+          <p style="font-size:13px;color:var(--text-3);margin-bottom:16px;line-height:1.6">Approve the project or request the student to make changes before final submission.</p>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <button class="btn btn-primary btn-full" onclick="decide('approved')">✓ Approve project</button>
+            <button class="btn btn-full" style="background:var(--yellow-bg);color:var(--yellow);border:1px solid #fcd34d;font-weight:600" onclick="decide('changes')">↺ Request changes</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function saveFeedback() {
+  feedbacks[current] = document.getElementById('fbInput').value;
+  const btn = document.querySelector('[onclick="saveFeedback()"]');
+  btn.textContent = '✓ Saved'; setTimeout(() => btn.textContent = 'Save draft', 1500);
+}
+function decide(status) { saveFeedback(); STUDENTS[current].status = status; render(); }
+
+const g = JSON.parse(localStorage.getItem('guide'));
+if (g) { document.getElementById('guideName').textContent=g.name||'Guide'; document.getElementById('avLetter').textContent=(g.name||'G')[0]; }
+function logout() { localStorage.removeItem('guide'); location.href='/index.html'; }
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submit Work | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.submit-wrap { max-width:680px; }
+.step-row { display:flex; align-items:flex-start; gap:16px; margin-bottom:8px; }
+.step-num { width:28px; height:28px; border-radius:50%; background:var(--blue-light); color:var(--blue-dark); font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+.step-desc { font-size:13px; color:var(--text-3); line-height:1.6; }
+.step-title { font-size:14px; font-weight:600; color:var(--text); margin-bottom:2px; }
+.input-with-icon { position:relative; }
+.input-with-icon .input { padding-left:40px; }
+.input-prefix { position:absolute; left:13px; top:50%; transform:translateY(-50%); font-size:16px; pointer-events:none; }
+.submit-success { display:none; padding:24px; text-align:center; }
+.success-icon { font-size:44px; margin-bottom:12px; }
+.success-title { font-size:18px; font-weight:700; color:var(--text); margin-bottom:6px; }
+.success-sub { font-size:14px; color:var(--text-3); }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <a href="dashboard.html" class="sidebar-logo">Prashik<span>shan</span></a>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Main</div>
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item" href="marketplace.html"><span class="nav-icon">🔍</span>Marketplace</a>
+    <a class="nav-item" href="applications.html"><span class="nav-icon">📋</span>Applications</a>
+    <a class="nav-item" href="connections.html"><span class="nav-icon">👥</span>Connections</a>
+    <div class="nav-group-label">Account</div>
+    <a class="nav-item" href="progress-journal.html"><span class="nav-icon">📓</span>Progress Journal</a>
+    <a class="nav-item" href="achievements.html"><span class="nav-icon">🏆</span>Achievements</a>
+    <a class="nav-item" href="notifications.html"><span class="nav-icon">🔔</span>Notifications</a>
+    <a class="nav-item" href="profile.html"><span class="nav-icon">👤</span>My Profile</a>
+    <a class="nav-item active" href="submit-project.html"><span class="nav-icon">📤</span>Submit Work</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Guide Chat</a>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">→</span>Sign out</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" id="avLetter">S</div>
+      <div><div class="user-name" id="sidebarName">Student</div><div class="user-role">Student</div></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="header-row page-header fade-up">
+    <div>
+      <div class="page-eyebrow">My Work</div>
+      <div class="page-title">Submit Project Work</div>
+      <div class="page-sub">Share your progress links and notes with your guide for review.</div>
+    </div>
+    <a href="dashboard.html" class="btn btn-secondary">← Dashboard</a>
+  </div>
+
+  <div class="submit-wrap fade-up d1">
+    <!-- Instructions -->
+    <div class="card card-pad" style="margin-bottom:20px">
+      <div class="section-label">Before you submit</div>
+      <div class="step-row">
+        <div class="step-num">1</div>
+        <div><div class="step-title">Ensure your GitHub is public</div><div class="step-desc">Your guide needs access to review your code. Make sure the repository is set to public.</div></div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">2</div>
+        <div><div class="step-title">Upload PPT to Google Drive</div><div class="step-desc">Share your presentation with "anyone with the link can view" and paste the URL below.</div></div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">3</div>
+        <div><div class="step-title">Record a demo video</div><div class="step-desc">A 3–5 min walkthrough of your project helps guides review your work more effectively.</div></div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="card" id="submitForm">
+      <div class="card-pad">
+        <div class="section-label">Submission details</div>
+
+        <!-- Active project indicator -->
+        <div style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--blue-light);border-radius:var(--radius);border:1px solid rgba(5,112,222,.2);margin-bottom:22px">
+          <span style="font-size:20px">📁</span>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--blue-dark)">AI Resume Analyzer</div>
+            <div style="font-size:12px;color:var(--blue)">Guide: Dr. Sharma · Milestone 3 of 5</div>
+          </div>
+          <span class="badge badge-blue" style="margin-left:auto">Ongoing</span>
+        </div>
+
+        <div class="field">
+          <label class="label">GitHub repository URL</label>
+          <div class="input-with-icon">
+            <span class="input-prefix">🐙</span>
+            <input type="url" class="input" id="github" placeholder="https://github.com/username/project-name">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Presentation (PPT / Google Slides)</label>
+          <div class="input-with-icon">
+            <span class="input-prefix">📊</span>
+            <input type="url" class="input" id="ppt" placeholder="https://drive.google.com/...">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Demo video</label>
+          <div class="input-with-icon">
+            <span class="input-prefix">🎬</span>
+            <input type="url" class="input" id="video" placeholder="https://youtube.com/... or drive link">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Progress notes</label>
+          <textarea class="input" id="notes" style="min-height:120px" placeholder="Describe what you've built, what works, what's pending, and any questions for your guide…"></textarea>
+        </div>
+
+        <div class="alert alert-error" id="errMsg"></div>
+
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button class="btn btn-primary" onclick="submitWork()">Submit for review</button>
+          <button class="btn btn-secondary" onclick="saveDraft()">Save draft</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success state -->
+    <div class="card submit-success" id="successCard">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">Submitted successfully!</div>
+      <div class="success-sub">Your guide will review your submission and provide feedback shortly.</div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:20px">
+        <a href="dashboard.html" class="btn btn-primary">Back to dashboard</a>
+        <button class="btn btn-secondary" onclick="resubmit()">Submit again</button>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+function getFormData() {
+  return {
+    github: document.getElementById('github').value.trim(),
+    ppt:    document.getElementById('ppt').value.trim(),
+    video:  document.getElementById('video').value.trim(),
+    notes:  document.getElementById('notes').value.trim(),
+  };
+}
+
+function saveDraft() {
+  localStorage.setItem('projectSubmission', JSON.stringify(getFormData()));
+  const btn = event.target;
+  btn.textContent = '✓ Draft saved';
+  setTimeout(() => btn.textContent = 'Save draft', 1500);
+}
+
+function submitWork() {
+  const data = getFormData();
+  const err = document.getElementById('errMsg');
+  err.style.display = 'none';
+  if (!data.github && !data.ppt && !data.video) {
+    err.textContent = 'Please provide at least one resource link.';
+    err.style.display = 'block'; return;
+  }
+  localStorage.setItem('projectSubmission', JSON.stringify(data));
+  document.getElementById('submitForm').style.display = 'none';
+  document.getElementById('successCard').style.display = 'block';
+}
+
+function resubmit() {
+  document.getElementById('submitForm').style.display = 'block';
+  document.getElementById('successCard').style.display = 'none';
+}
+
+// Load saved draft
+const draft = JSON.parse(localStorage.getItem('projectSubmission') || '{}');
+if (draft.github) document.getElementById('github').value = draft.github;
+if (draft.ppt)    document.getElementById('ppt').value    = draft.ppt;
+if (draft.video)  document.getElementById('video').value  = draft.video;
+if (draft.notes)  document.getElementById('notes').value  = draft.notes;
+
+const _s = JSON.parse(localStorage.getItem('student'));
+if (!_s) { location.href='/student-login.html'; }
+else {
+  document.getElementById('sidebarName').textContent = _s.fullName||'Student';
+  document.getElementById('avLetter').textContent = (_s.fullName||'S').charAt(0).toUpperCase();
+}
+function logout() { localStorage.clear(); location.href='/index.html'; }
+</script>
+</body>
+</html>

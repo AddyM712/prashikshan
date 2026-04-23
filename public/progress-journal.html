@@ -1,0 +1,415 @@
+/Users/addym/prashikshan-2.zip/Users/addym/prashikshan-2.zip<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Progress Journal | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.layout { display: flex; min-height: 100vh; }
+.main { flex: 1; min-width: 0; padding: 40px 48px; background: var(--bg); }
+.grid-main { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.card-pad { padding: 24px; }
+.section-label { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 14px; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* Milestone stepper */
+.milestone-track { display: flex; gap: 0; margin-bottom: 28px; }
+.ms-step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; cursor: pointer; }
+.ms-step:not(:last-child)::after { content: ''; position: absolute; top: 18px; left: 50%; width: 100%; height: 2px; background: var(--border); z-index: 0; }
+.ms-step.done:not(:last-child)::after { background: var(--green); }
+.ms-circle { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; z-index: 1; position: relative; transition: all .2s; }
+.ms-step.done .ms-circle { background: var(--green); border-color: var(--green); color: #fff; }
+.ms-step.active .ms-circle { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 0 0 4px rgba(5,112,222,.15); }
+.ms-label { font-size: 11px; font-weight: 600; color: var(--text-4); margin-top: 8px; text-align: center; max-width: 70px; }
+.ms-step.done .ms-label { color: var(--green); }
+.ms-step.active .ms-label { color: var(--blue); }
+
+/* Journal entry composer */
+.composer { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: border-color .2s; }
+.composer:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(5,112,222,.08); }
+.composer-toolbar { display: flex; gap: 4px; padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--bg); }
+.tb-btn { padding: 4px 10px; border-radius: 5px; border: none; background: none; font-size: 13px; font-weight: 600; color: var(--text-3); cursor: pointer; transition: all .15s; font-family: var(--font); }
+.tb-btn:hover { background: var(--surface-2); color: var(--text); }
+.tb-btn.active { background: var(--blue-light); color: var(--blue); }
+.mood-strip { display: flex; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--border); align-items: center; }
+.mood-label { font-size: 12px; color: var(--text-4); font-weight: 600; margin-right: 4px; }
+.mood-btn { font-size: 18px; padding: 2px 6px; border-radius: 6px; border: 1px solid transparent; cursor: pointer; background: none; transition: all .15s; }
+.mood-btn:hover, .mood-btn.selected { background: var(--surface-2); border-color: var(--border); transform: scale(1.15); }
+.composer textarea { width: 100%; padding: 16px; border: none; outline: none; font-family: var(--font); font-size: 14px; color: var(--text); resize: none; min-height: 120px; background: var(--surface); line-height: 1.7; }
+.composer-footer { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-top: 1px solid var(--border); background: var(--bg); }
+.tag-input { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.entry-tag { padding: 3px 10px; border-radius: 20px; background: var(--blue-light); color: var(--blue-dark); font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+.entry-tag button { background: none; border: none; color: var(--blue); cursor: pointer; font-size: 12px; padding: 0; line-height: 1; }
+.tag-field { border: none; outline: none; font-size: 13px; color: var(--text); font-family: var(--font); background: transparent; min-width: 80px; }
+
+/* Entry list */
+.entry-item { padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 12px; transition: all .18s; position: relative; overflow: hidden; cursor: default; }
+.entry-item::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--blue); }
+.entry-item.mood-great::before { background: var(--green); }
+.entry-item.mood-okay::before { background: #f59e0b; }
+.entry-item.mood-hard::before { background: var(--red); }
+.entry-item:hover { box-shadow: var(--shadow); border-color: var(--border-dark); }
+.ei-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.ei-left { display: flex; align-items: center; gap: 10px; }
+.ei-mood { font-size: 18px; }
+.ei-date { font-size: 12px; font-weight: 600; color: var(--text-4); }
+.ei-milestone { font-size: 11px; padding: 2px 8px; border-radius: 20px; background: var(--blue-light); color: var(--blue-dark); font-weight: 600; }
+.ei-text { font-size: 14px; color: var(--text-2); line-height: 1.7; margin-bottom: 10px; }
+.ei-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.ei-tag { padding: 2px 8px; border-radius: 20px; background: var(--surface-2); border: 1px solid var(--border); font-size: 11px; color: var(--text-3); font-weight: 500; }
+.ei-actions { display: flex; gap: 6px; }
+.ei-del { padding: 4px 8px; border-radius: 5px; border: none; background: none; color: var(--text-4); font-size: 12px; cursor: pointer; transition: all .15s; }
+.ei-del:hover { background: var(--red-bg); color: var(--red); }
+
+/* Sidebar widgets */
+.streak-row { display: flex; align-items: center; gap: 16px; }
+.streak-num { font-size: 40px; font-weight: 900; color: var(--blue); letter-spacing: -2px; line-height: 1; }
+.streak-sub { font-size: 13px; color: var(--text-3); }
+.streak-fire { font-size: 28px; }
+.week-dots { display: flex; gap: 6px; margin-top: 14px; }
+.wd { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+.wd.done { background: var(--blue); color: #fff; }
+.wd.today { background: var(--blue-light); color: var(--blue); border: 2px solid var(--blue); }
+.wd.empty { background: var(--surface-2); color: var(--text-4); border: 1px solid var(--border); }
+
+.insight-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.insight-item:last-child { border-bottom: none; }
+.insight-icon { font-size: 18px; flex-shrink: 0; }
+
+/* Mini calendar heatmap */
+.mini-heatmap { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
+.mh-cell { aspect-ratio: 1; border-radius: 3px; }
+.mh-0 { background: var(--surface-2); }
+.mh-1 { background: #bfdbfe; }
+.mh-2 { background: #60a5fa; }
+.mh-3 { background: var(--blue); }
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <a href="dashboard.html" class="sidebar-logo">Prashik<span>shan</span></a>
+  <nav class="sidebar-nav">
+    <span class="nav-group-label">Menu</span>
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item" href="marketplace.html"><span class="nav-icon">🛒</span>Marketplace</a>
+    <a class="nav-item" href="applications.html"><span class="nav-icon">📋</span>My Applications</a>
+    <a class="nav-item" href="connections.html"><span class="nav-icon">🔗</span>Connections</a>
+    <span class="nav-group-label" style="margin-top:8px">Work</span>
+    <a class="nav-item active" href="progress-journal.html"><span class="nav-icon">📓</span>Progress Journal</a>
+    <a class="nav-item" href="achievements.html"><span class="nav-icon">🏆</span>Achievements</a>
+    <a class="nav-item" href="profile.html"><span class="nav-icon">👤</span>My Profile</a>
+    <a class="nav-item" href="submit-project.html"><span class="nav-icon">📤</span>Submit Work</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Guide Chat</a>
+    <span class="nav-group-label" style="margin-top:8px">Account</span>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">🚪</span>Sign out</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" id="avLetter">S</div>
+      <div><div class="user-name" id="sidebarName">Student</div><div class="user-role">Student</div></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px" class="fade-up">
+    <div>
+      <div class="page-eyebrow">My Work</div>
+      <div style="font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.5px">Progress Journal</div>
+      <div style="font-size:14px;color:var(--text-3);margin-top:4px">Log your daily work, blockers, and breakthroughs.</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary" onclick="exportJournal()">↓ Export</button>
+    </div>
+  </div>
+
+  <!-- Milestone progress tracker -->
+  <div class="card card-pad fade-up d1" style="margin-bottom:20px">
+    <div class="between" style="margin-bottom:20px">
+      <div class="section-label" style="margin:0">AI Resume Analyzer — Milestones</div>
+      <span style="font-size:13px;color:var(--blue);font-weight:700" id="msPercent">60%</span>
+    </div>
+    <div style="height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;margin-bottom:24px">
+      <div style="height:100%;width:60%;background:var(--blue);border-radius:3px;transition:width .6s ease" id="msBar"></div>
+    </div>
+    <div class="milestone-track" id="msTrack"></div>
+  </div>
+
+  <div class="grid-main">
+    <!-- Left: composer + entries -->
+    <div>
+      <!-- New entry composer -->
+      <div class="fade-up d2" style="margin-bottom:20px">
+        <div class="section-label">New Journal Entry</div>
+        <div class="composer" id="composer">
+          <div class="composer-toolbar">
+            <button class="tb-btn" onclick="insertFmt('**','**')"><b>B</b></button>
+            <button class="tb-btn" onclick="insertFmt('_','_')"><i>I</i></button>
+            <button class="tb-btn" onclick="insertFmt('- ','')">• List</button>
+            <button class="tb-btn" onclick="insertFmt('> ','')">❝ Quote</button>
+            <div style="flex:1"></div>
+            <button class="tb-btn" id="linkedMs" onclick="cycleMilestone()">📍 Link milestone</button>
+          </div>
+          <div class="mood-strip">
+            <span class="mood-label">How's it going?</span>
+            <button class="mood-btn" data-mood="great" onclick="setMood('great',this)" title="Going great!">😄</button>
+            <button class="mood-btn" data-mood="good" onclick="setMood('good',this)" title="Going well">🙂</button>
+            <button class="mood-btn" data-mood="okay" onclick="setMood('okay',this)" title="Okay">😐</button>
+            <button class="mood-btn" data-mood="hard" onclick="setMood('hard',this)" title="Struggling">😤</button>
+            <button class="mood-btn" data-mood="stuck" onclick="setMood('stuck',this)" title="Blocked">🤯</button>
+          </div>
+          <textarea id="entryText" placeholder="What did you work on today? Share your progress, blockers, and learnings…"></textarea>
+          <div class="composer-footer">
+            <div class="tag-input" id="tagsRow">
+              <input type="text" class="tag-field" id="tagField" placeholder="+ add tag (press Enter)" onkeydown="addTag(event)">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="saveEntry()">Post entry</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entry feed -->
+      <div class="fade-up d3">
+        <div class="between" style="margin-bottom:14px">
+          <div class="section-label" style="margin:0">Journal Entries</div>
+          <select class="input" style="width:160px;padding:7px 12px;font-size:13px" onchange="filterEntries(this.value)">
+            <option value="all">All entries</option>
+            <option value="great">😄 Great days</option>
+            <option value="hard">😤 Hard days</option>
+            <option value="stuck">🤯 Blocked</option>
+          </select>
+        </div>
+        <div id="entriesList"></div>
+      </div>
+    </div>
+
+    <!-- Right sidebar -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <!-- Streak -->
+      <div class="card card-pad fade-up d2">
+        <div class="section-label">Writing Streak</div>
+        <div class="streak-row">
+          <div class="streak-fire">🔥</div>
+          <div>
+            <div class="streak-num" id="streakNum">7</div>
+            <div class="streak-sub">days in a row</div>
+          </div>
+        </div>
+        <div class="week-dots" id="weekDots"></div>
+      </div>
+
+      <!-- Activity heatmap -->
+      <div class="card card-pad fade-up d3">
+        <div class="section-label">March Activity</div>
+        <div class="mini-heatmap" id="miniHeatmap"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:11px;color:var(--text-4)">
+          <span>Mar 1</span><span>Mar 31</span>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="card card-pad fade-up d4">
+        <div class="section-label">Insights</div>
+        <div class="insight-item">
+          <div class="insight-icon">📝</div>
+          <div><div style="font-size:13px;font-weight:600;color:var(--text)" id="totalEntries">0</div><div style="font-size:12px;color:var(--text-4)">Total entries</div></div>
+        </div>
+        <div class="insight-item">
+          <div class="insight-icon">😄</div>
+          <div><div style="font-size:13px;font-weight:600;color:var(--text)" id="happyDays">0</div><div style="font-size:12px;color:var(--text-4)">Great days</div></div>
+        </div>
+        <div class="insight-item">
+          <div class="insight-icon">🤯</div>
+          <div><div style="font-size:13px;font-weight:600;color:var(--text)" id="blockedDays">0</div><div style="font-size:12px;color:var(--text-4)">Blocked days</div></div>
+        </div>
+        <div class="insight-item">
+          <div class="insight-icon">🏷️</div>
+          <div><div style="font-size:13px;font-weight:600;color:var(--text)" id="topTag">–</div><div style="font-size:12px;color:var(--text-4)">Most used tag</div></div>
+        </div>
+      </div>
+
+      <!-- Share with guide -->
+      <div class="card card-pad fade-up d5" style="border:1px solid #bfdbfe;background:#eff6ff">
+        <div class="section-label" style="color:var(--blue)">Share with Guide</div>
+        <p style="font-size:13px;color:var(--text-3);line-height:1.6;margin-bottom:14px">Your guide can see entries you mark as shared. Keep them updated on your blockers!</p>
+        <button class="btn btn-primary btn-sm btn-full" onclick="shareLatest()">📤 Share latest entry</button>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+const MILESTONES = ['Idea & Scope','UI Prototype','Backend Dev','Testing & QA','Final Submit'];
+const MILESTONE_STATUS = ['done','done','active','pending','pending'];
+const MOOD_ICONS = { great:'😄', good:'🙂', okay:'😐', hard:'😤', stuck:'🤯' };
+const MOOD_CLASS = { great:'mood-great', good:'', okay:'mood-okay', hard:'mood-hard', stuck:'mood-hard' };
+
+let entries = JSON.parse(localStorage.getItem('journal_entries') || '[]');
+let currentMood = 'good';
+let currentMilestone = null;
+let currentTags = [];
+let filterMood = 'all';
+
+// Seed entries if empty
+if (!entries.length) {
+  entries = [
+    { id:1, text:"Finally got the NLP module working! Accuracy is at 82% on the test set. Need to tune the model more. Feeling really good about the progress.", mood:'great', milestone:'Backend Dev', tags:['NLP','ML','Python'], date:'Mar 23, 2026', timestamp: Date.now()-86400000 },
+    { id:2, text:"Struggled with the resume parsing edge cases today. Special characters in PDFs are breaking the parser. Posted a question on Stack Overflow — waiting for answers.", mood:'stuck', milestone:'Backend Dev', tags:['debugging','parser'], date:'Mar 22, 2026', timestamp: Date.now()-172800000 },
+    { id:3, text:"Completed the UI prototype and got feedback from guide. He suggested adding a confidence score display next to each parsed section. Makes sense!", mood:'good', milestone:'UI Prototype', tags:['UI','feedback'], date:'Mar 20, 2026', timestamp: Date.now()-345600000 },
+  ];
+  localStorage.setItem('journal_entries', JSON.stringify(entries));
+}
+
+function renderMilestones() {
+  document.getElementById('msTrack').innerHTML = MILESTONES.map((m, i) => `
+    <div class="ms-step ${MILESTONE_STATUS[i]}">
+      <div class="ms-circle">${MILESTONE_STATUS[i] === 'done' ? '✓' : i + 1}</div>
+      <div class="ms-label">${m}</div>
+    </div>`).join('');
+}
+
+function renderWeekDots() {
+  const days = ['M','T','W','T','F','S','S'];
+  const done = [true, true, true, true, true, false, false];
+  document.getElementById('weekDots').innerHTML = days.map((d, i) => `
+    <div class="wd ${i === 4 ? 'today' : done[i] ? 'done' : 'empty'}">${d}</div>`).join('');
+}
+
+function renderHeatmap() {
+  const intensities = Array.from({length:31}, (_,i) => [0,1,2,3,2,1,0,0,1,3,2,1,0,1,2,3,2,0,1,2,3,1,0,0,2,3,1,2,3,2,1][i]);
+  document.getElementById('miniHeatmap').innerHTML = intensities.map(v => `<div class="mh-cell mh-${v}"></div>`).join('');
+}
+
+function renderEntries() {
+  const list = filterMood === 'all' ? entries : entries.filter(e => e.mood === filterMood);
+  const el = document.getElementById('entriesList');
+  if (!list.length) {
+    el.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--text-4)"><div style="font-size:36px;margin-bottom:10px;opacity:.4">📓</div><div style="font-size:14px;font-weight:600;color:var(--text-3)">No entries yet</div><div style="font-size:13px;margin-top:4px">Start by writing your first journal entry above.</div></div>`;
+    return;
+  }
+  el.innerHTML = list.map(e => `
+    <div class="entry-item ${MOOD_CLASS[e.mood] || ''}">
+      <div class="ei-header">
+        <div class="ei-left">
+          <div class="ei-mood">${MOOD_ICONS[e.mood] || '🙂'}</div>
+          <div class="ei-date">${e.date}</div>
+          ${e.milestone ? `<div class="ei-milestone">📍 ${e.milestone}</div>` : ''}
+        </div>
+        <div class="ei-actions">
+          <button class="ei-del" onclick="shareEntry(${e.id})">📤</button>
+          <button class="ei-del" onclick="deleteEntry(${e.id})">✕</button>
+        </div>
+      </div>
+      <div class="ei-text">${e.text}</div>
+      ${e.tags?.length ? `<div class="ei-tags">${e.tags.map(t => `<span class="ei-tag">#${t}</span>`).join('')}</div>` : ''}
+    </div>`).join('');
+}
+
+function renderStats() {
+  document.getElementById('totalEntries').textContent = entries.length;
+  document.getElementById('happyDays').textContent = entries.filter(e => e.mood === 'great').length;
+  document.getElementById('blockedDays').textContent = entries.filter(e => e.mood === 'stuck').length;
+  const tagCount = {};
+  entries.forEach(e => (e.tags||[]).forEach(t => tagCount[t] = (tagCount[t]||0)+1));
+  const top = Object.entries(tagCount).sort((a,b) => b[1]-a[1])[0];
+  document.getElementById('topTag').textContent = top ? '#'+top[0] : '–';
+  document.getElementById('streakNum').textContent = Math.min(entries.length, 7);
+}
+
+function setMood(mood, btn) {
+  currentMood = mood;
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function cycleMilestone() {
+  const active = MILESTONES[MILESTONE_STATUS.indexOf('active')];
+  currentMilestone = currentMilestone ? null : active;
+  document.getElementById('linkedMs').classList.toggle('active', !!currentMilestone);
+  document.getElementById('linkedMs').textContent = currentMilestone ? `📍 ${currentMilestone}` : '📍 Link milestone';
+}
+
+function addTag(e) {
+  if (e.key !== 'Enter') return;
+  const val = e.target.value.trim().replace(/^#/,'');
+  if (!val || currentTags.includes(val)) { e.target.value = ''; return; }
+  currentTags.push(val);
+  const tag = document.createElement('span');
+  tag.className = 'entry-tag';
+  tag.innerHTML = `#${val} <button onclick="removeTag('${val}',this.parentElement)">✕</button>`;
+  document.getElementById('tagsRow').insertBefore(tag, e.target);
+  e.target.value = '';
+}
+
+function removeTag(val, el) {
+  currentTags = currentTags.filter(t => t !== val);
+  el.remove();
+}
+
+function saveEntry() {
+  const text = document.getElementById('entryText').value.trim();
+  if (!text) return;
+  const entry = {
+    id: Date.now(), text, mood: currentMood,
+    milestone: currentMilestone,
+    tags: [...currentTags],
+    date: new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }),
+    timestamp: Date.now()
+  };
+  entries.unshift(entry);
+  localStorage.setItem('journal_entries', JSON.stringify(entries));
+  document.getElementById('entryText').value = '';
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  currentMood = 'good'; currentMilestone = null; currentTags = [];
+  document.getElementById('linkedMs').classList.remove('active');
+  document.getElementById('linkedMs').textContent = '📍 Link milestone';
+  document.getElementById('tagsRow').querySelectorAll('.entry-tag').forEach(t => t.remove());
+  renderEntries(); renderStats();
+}
+
+function deleteEntry(id) {
+  entries = entries.filter(e => e.id !== id);
+  localStorage.setItem('journal_entries', JSON.stringify(entries));
+  renderEntries(); renderStats();
+}
+
+function filterEntries(val) { filterMood = val; renderEntries(); }
+
+function insertFmt(before, after) {
+  const ta = document.getElementById('entryText');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  ta.value = ta.value.slice(0,s) + before + ta.value.slice(s,e) + after + ta.value.slice(e);
+  ta.focus();
+}
+
+function shareLatest() {
+  const btn = event.target;
+  btn.textContent = '✓ Shared with guide!';
+  setTimeout(() => btn.textContent = '📤 Share latest entry', 2000);
+}
+function shareEntry(id) {
+  const btn = event.target;
+  btn.textContent = '✓';
+  setTimeout(() => btn.textContent = '📤', 1500);
+}
+
+function exportJournal() {
+  const lines = entries.map(e => `[${e.date}] ${MOOD_ICONS[e.mood]} ${e.milestone ? '('+e.milestone+')' : ''}\n${e.text}\nTags: ${(e.tags||[]).map(t=>'#'+t).join(' ')}\n`).join('\n---\n\n');
+  const blob = new Blob([lines], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'progress-journal.txt'; a.click();
+}
+
+// Init
+const s = JSON.parse(localStorage.getItem('student') || '{}');
+if (s.fullName) { document.getElementById('sidebarName').textContent = s.fullName; document.getElementById('avLetter').textContent = s.fullName[0]; }
+function logout() { localStorage.clear(); location.href='/index.html'; }
+
+renderMilestones(); renderWeekDots(); renderHeatmap(); renderEntries(); renderStats();
+</script>
+</body>
+</html>

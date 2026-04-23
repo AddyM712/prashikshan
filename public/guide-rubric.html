@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rubric Grading | Guide | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.layout { display: flex; min-height: 100vh; }
+.main { flex: 1; min-width: 0; padding: 40px 48px; background: var(--bg); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.card-pad { padding: 24px; }
+.section-label { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 14px; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+.grid-rubric { display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start; }
+
+/* Student selector */
+.stu-btn { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--radius-lg); cursor: pointer; transition: all .15s; border: 1px solid transparent; margin-bottom: 6px; width: 100%; background: none; font-family: var(--font); text-align: left; }
+.stu-btn:hover { background: var(--surface-2); border-color: var(--border); }
+.stu-btn.active { background: var(--blue-light); border-color: #93c5fd; }
+.sb-av { width: 36px; height: 36px; border-radius: 50%; color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sb-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.sb-proj { font-size: 11px; color: var(--text-4); margin-top: 1px; }
+.sb-grade { margin-left: auto; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 20px; flex-shrink: 0; }
+
+/* Rubric table */
+.rubric-table { width: 100%; border-collapse: collapse; }
+.rubric-table th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--text-4); padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--border); }
+.rubric-table td { padding: 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+.criterion-cell { padding: 16px 14px; }
+.crit-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.crit-desc { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+.crit-weight { font-size: 11px; font-weight: 600; color: var(--text-4); margin-top: 6px; }
+.score-cell { padding: 16px 14px; min-width: 200px; }
+.score-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.score-btn { width: 36px; height: 36px; border-radius: 8px; border: 2px solid var(--border); background: var(--surface); font-size: 13px; font-weight: 800; color: var(--text-3); cursor: pointer; transition: all .18s; font-family: var(--font); display: flex; align-items: center; justify-content: center; }
+.score-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+.score-btn.selected { background: var(--blue); border-color: var(--blue); color: #fff; }
+.score-btn.s1.selected { background: #ef4444; border-color: #ef4444; }
+.score-btn.s2.selected { background: #f97316; border-color: #f97316; }
+.score-btn.s3.selected { background: #eab308; border-color: #eab308; }
+.score-btn.s4.selected { background: #22c55e; border-color: #22c55e; }
+.score-btn.s5.selected { background: #0570de; border-color: #0570de; }
+.feedback-cell { padding: 16px 14px; }
+.feedback-cell textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-family: var(--font); font-size: 13px; color: var(--text); resize: none; min-height: 80px; outline: none; transition: border-color .2s; }
+.feedback-cell textarea:focus { border-color: var(--blue); }
+
+/* Score summary */
+.score-summary { padding: 24px; background: var(--text); color: #fff; border-radius: var(--radius-xl); margin-top: 20px; }
+.ss-score { font-size: 52px; font-weight: 900; letter-spacing: -2px; line-height: 1; }
+.ss-label { font-size: 13px; opacity: .7; margin-top: 4px; }
+.ss-grade { font-size: 28px; font-weight: 800; margin-top: 8px; }
+.ss-bar { height: 8px; background: rgba(255,255,255,.2); border-radius: 4px; overflow: hidden; margin-top: 16px; }
+.ss-bar-fill { height: 100%; background: #fff; border-radius: 4px; transition: width .8s ease; }
+.ss-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.ss-bd-item { background: rgba(255,255,255,.08); border-radius: 8px; padding: 10px 12px; }
+.ss-bd-name { font-size: 11px; opacity: .7; margin-bottom: 4px; }
+.ss-bd-score { font-size: 16px; font-weight: 800; }
+
+/* Action bar */
+.action-bar { display: flex; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); justify-content: flex-end; }
+
+/* Rubric templates */
+.template-btn { padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--text-3); background: var(--surface); cursor: pointer; transition: all .15s; font-family: var(--font); }
+.template-btn:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+.template-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sidebar-logo">Prashik<span>shan</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Guide Panel</div>
+    <a class="nav-item" href="guide-dashboard.html"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item" href="guide-applications.html"><span class="nav-icon">📋</span>Applications</a>
+    <a class="nav-item" href="review-submissions.html"><span class="nav-icon">📝</span>Review Submissions</a>
+    <a class="nav-item active" href="guide-rubric.html"><span class="nav-icon">📐</span>Rubric Grading</a>
+    <a class="nav-item" href="guide-announcements.html"><span class="nav-icon">📢</span>Announcements</a>
+    <a class="nav-item" href="guide-chat.html"><span class="nav-icon">💬</span>Student Chat</a>
+    <a class="nav-item" href="guide-analytics.html"><span class="nav-icon">📊</span>Analytics</a>
+    <a class="nav-item" href="guide-students.html"><span class="nav-icon">👥</span>Student Tracker</a>
+    <a class="nav-item" href="guide-schedule.html"><span class="nav-icon">🗓</span>Schedule</a>
+    <div class="nav-group-label">Account</div>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">→</span>Sign out</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" style="background:#f59e0b;color:#1a1f36" id="avLetter">G</div>
+      <div><div class="user-name" id="guideName">Guide</div><div class="user-role">Expert Guide</div></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px" class="fade-up">
+    <div>
+      <div class="page-eyebrow">Guide Panel</div>
+      <div style="font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.5px">Rubric Grading</div>
+      <div style="font-size:14px;color:var(--text-3);margin-top:4px">Score each criterion and generate a structured grade report.</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary" onclick="exportGrades()">↓ Export grades</button>
+      <button class="btn btn-primary" onclick="submitAllGrades()">✓ Submit grades</button>
+    </div>
+  </div>
+
+  <div class="grid-rubric fade-up d1">
+    <!-- Student picker -->
+    <div>
+      <div class="card card-pad" style="margin-bottom:16px">
+        <div class="section-label">Select Student</div>
+        <div id="studentPicker"></div>
+      </div>
+      <!-- Score card -->
+      <div id="scoreCard" style="display:none">
+        <div class="score-summary" id="scoreSummary">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div class="ss-score" id="ssScore">0</div>
+              <div class="ss-label">out of 100</div>
+            </div>
+            <div class="ss-grade" id="ssGrade">–</div>
+          </div>
+          <div class="ss-bar"><div class="ss-bar-fill" id="ssBarFill" style="width:0%"></div></div>
+          <div class="ss-breakdown" id="ssBreakdown"></div>
+        </div>
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-primary btn-full" onclick="submitGrade()">✓ Submit this grade</button>
+          <button class="btn btn-secondary btn-full" onclick="saveGrade()">💾 Save draft</button>
+          <button class="btn btn-secondary btn-full" onclick="generateReport()">📄 Generate report</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rubric -->
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <div>
+            <div class="section-label" style="margin:0 0 4px">Grading Template</div>
+            <div id="rubricStudentName" style="font-size:15px;font-weight:700;color:var(--text)">Select a student</div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="template-btn active" onclick="loadTemplate('technical',this)">⚙️ Technical</button>
+            <button class="template-btn" onclick="loadTemplate('presentation',this)">📊 Presentation</button>
+            <button class="template-btn" onclick="loadTemplate('innovation',this)">💡 Innovation</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="rubric-table">
+            <thead>
+              <tr>
+                <th style="min-width:200px">Criterion</th>
+                <th style="min-width:220px">Score (1–5)</th>
+                <th style="min-width:240px">Feedback</th>
+              </tr>
+            </thead>
+            <tbody id="rubricBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Overall comments -->
+      <div class="card card-pad">
+        <div class="section-label">Overall Comments</div>
+        <textarea class="input" id="overallFeedback" style="min-height:100px;font-size:14px;line-height:1.6" placeholder="Summarize your overall evaluation, key strengths, and areas for improvement…"></textarea>
+        <div class="action-bar">
+          <button class="btn btn-secondary" onclick="clearRubric()">↺ Reset</button>
+          <button class="btn btn-primary" onclick="submitGrade()">✓ Submit grade</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+const STUDENTS = [
+  { id:'rahul',  name:'Rahul Sharma',  project:'AI Resume Analyzer',       color:'#0570de' },
+  { id:'ananya', name:'Ananya Patel',  project:'Student Perf. Predictor',  color:'#a855f7' },
+  { id:'vikram', name:'Vikram Rao',    project:'Cyber Threat Detector',    color:'#1a7f37' },
+  { id:'priya',  name:'Priya Singh',   project:'AI Resume Analyzer',       color:'#0353a4' },
+  { id:'mohit',  name:'Mohit Verma',   project:'Smart Campus App',         color:'#92400e' },
+];
+
+const TEMPLATES = {
+  technical: [
+    { id:'code_quality',  name:'Code Quality',      desc:'Code structure, naming conventions, modularity, and readability.',        weight:20 },
+    { id:'functionality', name:'Functionality',     desc:'Core features work correctly; edge cases handled appropriately.',          weight:25 },
+    { id:'testing',       name:'Testing Coverage',  desc:'Unit/integration tests present and meaningful.',                           weight:15 },
+    { id:'documentation', name:'Documentation',     desc:'README, comments, and API docs are clear and complete.',                   weight:15 },
+    { id:'performance',   name:'Performance',       desc:'App is optimized; no obvious bottlenecks or inefficiencies.',             weight:15 },
+    { id:'deployment',    name:'Deployment Ready',  desc:'Project can be run/deployed by following instructions.',                   weight:10 },
+  ],
+  presentation: [
+    { id:'clarity',       name:'Clarity',           desc:'Slides are clear, well-structured, and easy to follow.',                  weight:20 },
+    { id:'content',       name:'Content Depth',     desc:'Technical content is accurate and appropriately detailed.',               weight:25 },
+    { id:'demo',          name:'Demo Quality',      desc:'Demo video is professional and covers all key features.',                  weight:20 },
+    { id:'problem',       name:'Problem Statement', desc:'Clear articulation of the problem and proposed solution.',                 weight:20 },
+    { id:'visuals',       name:'Visual Design',     desc:'Diagrams, charts, and visuals enhance understanding.',                    weight:15 },
+  ],
+  innovation: [
+    { id:'originality',   name:'Originality',       desc:'Project solves a real problem with a novel approach.',                    weight:30 },
+    { id:'impact',        name:'Potential Impact',  desc:'Solution has clear practical value and scalability.',                     weight:25 },
+    { id:'tech_choice',   name:'Technology Fit',    desc:'Tech stack is appropriate for the problem domain.',                       weight:20 },
+    { id:'execution',     name:'Execution Quality', desc:'Idea is well-executed with attention to detail.',                         weight:25 },
+  ],
+};
+
+let currentStudent = null;
+let currentTemplate = 'technical';
+let scores = {}; // { studentId: { criterionId: score } }
+let feedbacks = {}; // { studentId: { criterionId: feedback } }
+let overallFeedbacks = {};
+let grades = {}; // { studentId: grade }
+
+function renderStudentPicker() {
+  const gradeColors = { 'A+':'#dcfce7','A':'#dcfce7','B':'#fef3c7','C+':'#fde8e8','-':'var(--surface-2)' };
+  const gradeTextColors = { 'A+':'#1a7f37','A':'#1a7f37','B':'#92400e','C+':'#c0392b','-':'var(--text-4)' };
+  document.getElementById('studentPicker').innerHTML = STUDENTS.map(s => {
+    const g = grades[s.id] || '–';
+    return `<button class="stu-btn ${currentStudent?.id === s.id ? 'active' : ''}" onclick="selectStudent('${s.id}')">
+      <div class="sb-av" style="background:${s.color}">${s.name[0]}</div>
+      <div><div class="sb-name">${s.name}</div><div class="sb-proj">${s.project}</div></div>
+      <div class="sb-grade" style="background:${gradeColors[g]||'var(--surface-2)'};color:${gradeTextColors[g]||'var(--text-4)'}">${g}</div>
+    </button>`;
+  }).join('');
+}
+
+function selectStudent(id) {
+  currentStudent = STUDENTS.find(s => s.id === id);
+  renderStudentPicker();
+  renderRubric();
+  updateScore();
+  document.getElementById('scoreCard').style.display = '';
+  document.getElementById('rubricStudentName').textContent = currentStudent.name + ' — ' + currentStudent.project;
+  document.getElementById('overallFeedback').value = overallFeedbacks[id] || '';
+}
+
+function loadTemplate(name, btn) {
+  currentTemplate = name;
+  document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRubric();
+  updateScore();
+}
+
+function renderRubric() {
+  if (!currentStudent) return;
+  const criteria = TEMPLATES[currentTemplate];
+  const sid = currentStudent.id;
+  if (!scores[sid]) scores[sid] = {};
+  if (!feedbacks[sid]) feedbacks[sid] = {};
+
+  document.getElementById('rubricBody').innerHTML = criteria.map(c => `
+    <tr>
+      <td class="criterion-cell">
+        <div class="crit-name">${c.name}</div>
+        <div class="crit-desc">${c.desc}</div>
+        <div class="crit-weight">Weight: ${c.weight}%</div>
+      </td>
+      <td class="score-cell">
+        <div class="score-btns">
+          ${[1,2,3,4,5].map(n => `<button class="score-btn s${n} ${scores[sid][c.id]===n?'selected':''}" onclick="setScore('${c.id}',${n},this)">${n}</button>`).join('')}
+        </div>
+        <div style="font-size:11px;color:var(--text-4)">${scoreLabel(scores[sid][c.id])}</div>
+      </td>
+      <td class="feedback-cell">
+        <textarea placeholder="Specific feedback for ${c.name}…" onchange="saveFeedback('${c.id}',this.value)">${feedbacks[sid][c.id]||''}</textarea>
+      </td>
+    </tr>`).join('');
+}
+
+function scoreLabel(s) {
+  return ['','Needs improvement','Below expectations','Meets expectations','Above expectations','Exceptional'][s||0] || 'Not scored';
+}
+
+function setScore(criterionId, score, btn) {
+  if (!currentStudent) return;
+  const sid = currentStudent.id;
+  if (!scores[sid]) scores[sid] = {};
+  scores[sid][criterionId] = score;
+  // Update UI
+  const row = btn.closest('tr');
+  row.querySelectorAll('.score-btn').forEach((b,i) => b.classList.toggle('selected', i+1 === score));
+  row.querySelector('.score-cell div:last-child').textContent = scoreLabel(score);
+  updateScore();
+}
+
+function saveFeedback(cid, val) {
+  if (!currentStudent) return;
+  if (!feedbacks[currentStudent.id]) feedbacks[currentStudent.id] = {};
+  feedbacks[currentStudent.id][cid] = val;
+}
+
+function updateScore() {
+  if (!currentStudent) return;
+  const sid = currentStudent.id;
+  const criteria = TEMPLATES[currentTemplate];
+  let weighted = 0, totalWeight = 0;
+  criteria.forEach(c => {
+    const s = scores[sid]?.[c.id] || 0;
+    weighted += (s / 5) * c.weight;
+    totalWeight += c.weight;
+  });
+  const pct = totalWeight ? Math.round((weighted / totalWeight) * 100) : 0;
+  const gradeMap = [[90,'A+'],[80,'A'],[70,'B'],[60,'C+'],[50,'C'],[0,'F']];
+  const grade = gradeMap.find(([min]) => pct >= min)?.[1] || 'F';
+  grades[sid] = grade;
+
+  document.getElementById('ssScore').textContent = pct;
+  document.getElementById('ssGrade').textContent = grade;
+  document.getElementById('ssBarFill').style.width = pct + '%';
+
+  // Breakdown
+  const breakdown = criteria.slice(0,4).map(c => ({
+    name: c.name.split(' ')[0],
+    score: scores[sid]?.[c.id] || 0,
+  }));
+  document.getElementById('ssBreakdown').innerHTML = breakdown.map(b => `
+    <div class="ss-bd-item">
+      <div class="ss-bd-name">${b.name}</div>
+      <div class="ss-bd-score">${b.score}/5</div>
+    </div>`).join('');
+  renderStudentPicker();
+}
+
+function clearRubric() {
+  if (!currentStudent) return;
+  scores[currentStudent.id] = {};
+  feedbacks[currentStudent.id] = {};
+  document.getElementById('overallFeedback').value = '';
+  renderRubric(); updateScore();
+}
+
+function submitGrade() {
+  if (!currentStudent) return;
+  overallFeedbacks[currentStudent.id] = document.getElementById('overallFeedback').value;
+  localStorage.setItem('guide_grades_rubric', JSON.stringify({ scores, grades, overallFeedbacks }));
+  const btn = event.target;
+  btn.textContent = '✓ Grade submitted!';
+  setTimeout(() => btn.textContent = '✓ Submit grade', 2000);
+}
+
+function saveGrade() {
+  localStorage.setItem('guide_grades_rubric', JSON.stringify({ scores, grades, overallFeedbacks }));
+  const btn = event.target;
+  btn.textContent = '✓ Saved!';
+  setTimeout(() => btn.textContent = '💾 Save draft', 2000);
+}
+
+function generateReport() {
+  if (!currentStudent) return;
+  const criteria = TEMPLATES[currentTemplate];
+  const sid = currentStudent.id;
+  const lines = [
+    `GRADE REPORT — ${currentStudent.name}`,
+    `Project: ${currentStudent.project}`,
+    `Date: ${new Date().toLocaleDateString()}`,
+    `Template: ${currentTemplate}`, '',
+    '--- SCORES ---',
+    ...criteria.map(c => `${c.name}: ${scores[sid]?.[c.id] || 0}/5 — ${scoreLabel(scores[sid]?.[c.id])}${feedbacks[sid]?.[c.id] ? '\n  Feedback: ' + feedbacks[sid][c.id] : ''}`),
+    '', '--- OVERALL ---',
+    `Grade: ${grades[sid] || '–'} (${document.getElementById('ssScore').textContent}/100)`,
+    overallFeedbacks[sid] ? `\nComments: ${overallFeedbacks[sid]}` : ''
+  ].join('\n');
+  const blob = new Blob([lines], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `grade-${currentStudent.id}.txt`; a.click();
+}
+
+function submitAllGrades() {
+  localStorage.setItem('guide_grades_rubric', JSON.stringify({ scores, grades, overallFeedbacks }));
+  alert('All grades saved successfully!');
+}
+
+function exportGrades() {
+  const rows = STUDENTS.map(s => `${s.name},${s.project},${grades[s.id]||'–'}`).join('\n');
+  const csv = `Name,Project,Grade\n${rows}`;
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'grades.csv'; a.click();
+}
+
+// Restore saved
+const saved = JSON.parse(localStorage.getItem('guide_grades_rubric') || '{}');
+if (saved.scores) scores = saved.scores;
+if (saved.grades) grades = saved.grades;
+if (saved.overallFeedbacks) overallFeedbacks = saved.overallFeedbacks;
+
+const _g = JSON.parse(localStorage.getItem('guide') || '{}');
+if (_g.name) { document.getElementById('guideName').textContent = _g.name; document.getElementById('avLetter').textContent = _g.name[0]; }
+function logout() { localStorage.removeItem('guide'); location.href='/index.html'; }
+
+renderStudentPicker();
+// Load first template
+document.getElementById('rubricBody').innerHTML = `<tr><td colspan="3" style="text-align:center;padding:48px;color:var(--text-4)"><div style="font-size:32px;margin-bottom:10px;opacity:.4">📐</div><div style="font-size:14px;font-weight:600;color:var(--text-3)">Select a student to start grading</div></td></tr>`;
+</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prashikshan | Academia–Industry Interface</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.hero { padding: 140px 40px 100px; text-align: center; max-width: 780px; margin: 0 auto; }
+.hero-badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 14px; border: 1px solid var(--border); border-radius: 100px; background: #fff; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 32px; box-shadow: var(--shadow-sm); }
+.badge-dot { width: 6px; height: 6px; background: var(--blue); border-radius: 50%; }
+h1 { font-family: var(--font-serif); font-size: clamp(40px, 6vw, 68px); font-weight: 400; line-height: 1.1; color: var(--text); margin-bottom: 22px; letter-spacing: -1px; }
+h1 em { color: var(--blue); font-style: italic; }
+.hero-sub { font-size: 17px; color: var(--text-secondary); max-width: 520px; margin: 0 auto 42px; line-height: 1.75; font-weight: 400; }
+.hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+.stats-strip { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); display: flex; justify-content: center; background: #fff; }
+.stat-item { text-align: center; padding: 32px 64px; border-right: 1px solid var(--border); }
+.stat-item:last-child { border-right: none; }
+.s-num { font-family: var(--font-serif); font-size: 36px; color: var(--text); }
+.s-lbl { font-size: 13px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+
+.section { padding: 88px 40px; max-width: 1100px; margin: 0 auto; }
+.section-label { font-size: 12px; font-weight: 700; color: var(--blue); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px; text-align: center; }
+.section-title { font-family: var(--font-serif); font-size: clamp(28px, 3.5vw, 44px); color: var(--text); margin-bottom: 56px; text-align: center; letter-spacing: -0.5px; line-height: 1.2; }
+
+.domain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.domain-card { padding: 36px 30px; transition: all 0.25s; }
+.domain-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: #c8d6e5; }
+.d-emoji { font-size: 32px; margin-bottom: 20px; }
+.d-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+.d-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+.d-tag { margin-top: 20px; }
+
+.how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.how-card { padding: 32px; }
+.how-num { font-family: var(--font-serif); font-size: 40px; color: var(--border); margin-bottom: 16px; line-height: 1; }
+.how-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.how-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+
+.cta-strip { background: var(--text); padding: 80px 40px; text-align: center; }
+.cta-strip h2 { font-family: var(--font-serif); font-size: clamp(26px, 3vw, 40px); color: #fff; margin-bottom: 14px; }
+.cta-strip p { color: rgba(255,255,255,0.6); font-size: 16px; margin-bottom: 36px; }
+.btn-white { background: #fff; color: var(--text); font-weight: 600; }
+.btn-white:hover { background: #f0f4f8; transform: translateY(-1px); }
+
+footer { border-top: 1px solid var(--border); padding: 28px 40px; display: flex; align-items: center; justify-content: space-between; }
+.footer-logo { font-size: 14px; font-weight: 700; color: var(--text); }
+.footer-logo span { color: var(--blue); }
+.footer-copy { font-size: 13px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="index.html" class="logo">Prashik<span>shan</span></a>
+  <div class="nav-links">
+    <a href="#domains" class="nav-link">Domains</a>
+    <a href="guide-login.html" class="nav-link">For Guides</a>
+    <a href="student-login.html" class="nav-link">Sign in</a>
+    <a href="register.html" class="btn btn-primary btn-sm" style="margin-left:4px">Get started</a>
+  </div>
+</nav>
+
+<section class="hero anim">
+  <div class="hero-badge"><span class="badge-dot"></span>Academia–Industry Interface</div>
+  <h1>Where Students Meet <em>Real</em> Industry</h1>
+  <p class="hero-sub">A structured ecosystem connecting students, universities, and companies through meaningful project collaboration and expert mentorship.</p>
+  <div class="hero-cta">
+    <a href="register.html" class="btn btn-primary btn-lg">Join the ecosystem</a>
+    <a href="#domains" class="btn btn-outline btn-lg">Explore domains</a>
+  </div>
+</section>
+
+<div class="stats-strip">
+  <div class="stat-item anim d1"><div class="s-num">500+</div><div class="s-lbl">Students enrolled</div></div>
+  <div class="stat-item anim d2"><div class="s-num">120+</div><div class="s-lbl">Active projects</div></div>
+  <div class="stat-item anim d3"><div class="s-num">40+</div><div class="s-lbl">Expert guides</div></div>
+  <div class="stat-item anim d4"><div class="s-num">95%</div><div class="s-lbl">Success rate</div></div>
+</div>
+
+<div class="section" id="domains">
+  <div class="section-label">Choose your path</div>
+  <div class="section-title">Three domains. Endless possibilities.</div>
+  <div class="domain-grid">
+    <div class="domain-card card anim d1">
+      <div class="d-emoji">💻</div>
+      <div class="d-title">Software Engineering</div>
+      <p class="d-desc">Build scalable systems and solve real-world tech challenges alongside industry engineers.</p>
+      <div class="d-tag"><span class="badge badge-blue">Most popular</span></div>
+    </div>
+    <div class="domain-card card anim d2">
+      <div class="d-emoji">🏥</div>
+      <div class="d-title">Medical</div>
+      <p class="d-desc">Define healthcare challenges and build impact-driven solutions at the intersection of tech and medicine.</p>
+      <div class="d-tag"><span class="badge badge-green">High impact</span></div>
+    </div>
+    <div class="domain-card card anim d3">
+      <div class="d-emoji">📊</div>
+      <div class="d-title">Business</div>
+      <p class="d-desc">Validate business models, drive innovation strategy, and connect academic research to industry needs.</p>
+      <div class="d-tag"><span class="badge badge-purple">Growing fast</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="background: #fff; max-width: 100%; padding: 88px 40px;">
+  <div style="max-width: 1100px; margin: 0 auto;">
+    <div class="section-label">The process</div>
+    <div class="section-title">Simple. Structured. Effective.</div>
+    <div class="how-grid">
+      <div class="how-card card anim d1">
+        <div class="how-num">01</div>
+        <div class="how-title">Register & choose your domain</div>
+        <p class="how-desc">Create your student profile, select your area of interest, and enter the ecosystem.</p>
+      </div>
+      <div class="how-card card anim d2">
+        <div class="how-num">02</div>
+        <div class="how-title">Browse & apply to projects</div>
+        <p class="how-desc">Explore curated real-world projects from companies and apply to ones that match your skills.</p>
+      </div>
+      <div class="how-card card anim d3">
+        <div class="how-num">03</div>
+        <div class="how-title">Build under expert guidance</div>
+        <p class="how-desc">Work alongside experienced guides, hit milestones, and deliver industry-grade outcomes.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cta-strip">
+  <h2>Ready to build something real?</h2>
+  <p>Join hundreds of students working on projects that matter.</p>
+  <a href="register.html" class="btn btn-white btn-lg">Create your account →</a>
+</div>
+
+<footer>
+  <div class="footer-logo">Prashik<span>shan</span></div>
+  <div class="footer-copy">© 2026 Prashikshan. Academia–Industry Interface Platform.</div>
+</footer>
+
+</body>
+</html>

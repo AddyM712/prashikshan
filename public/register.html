@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create account | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg); padding: 40px 24px; }
+.auth-wrap { width: 100%; max-width: 480px; }
+.auth-logo { text-align: center; margin-bottom: 28px; }
+.auth-logo a { font-size: 20px; font-weight: 700; color: var(--text); text-decoration: none; }
+.auth-logo a span { color: var(--blue); }
+.auth-card { padding: 36px; }
+.auth-heading { font-family: var(--font-serif); font-size: 26px; color: var(--text); margin-bottom: 6px; letter-spacing: -0.3px; }
+.auth-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 28px; }
+.domain-select { display: flex; gap: 8px; margin-top: 6px; }
+.domain-opt { flex: 1; padding: 10px 8px; border: 1px solid var(--border); border-radius: 8px; background: #fff; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+.domain-opt:hover { border-color: #b0c4de; background: var(--surface2); }
+.domain-opt.selected { border-color: var(--blue); background: var(--blue-light); color: var(--blue); font-weight: 600; }
+.domain-emoji { font-size: 18px; display: block; margin-bottom: 4px; }
+.auth-footer { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+.auth-footer a { color: var(--blue); text-decoration: none; font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-logo anim">
+    <a href="index.html">Prashik<span>shan</span></a>
+  </div>
+  <div class="auth-card card anim d1">
+    <div class="auth-heading">Create your account</div>
+    <div class="auth-sub">Join the academia–industry ecosystem</div>
+
+    <div class="alert alert-error" id="errorMsg"></div>
+    <div class="alert alert-success" id="successMsg"></div>
+
+    <div class="form-row">
+      <div class="input-group">
+        <label class="input-label">Full name</label>
+        <input type="text" class="input" id="fullName" placeholder="Addy Sharma">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Email address</label>
+        <input type="email" class="input" id="email" placeholder="you@uni.edu">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">University</label>
+      <input type="text" class="input" id="university" placeholder="IIT Bombay, VIT, BITS...">
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">Domain</label>
+      <div class="domain-select">
+        <div class="domain-opt" onclick="selectDomain(this,'Software Engineering')">
+          <span class="domain-emoji">💻</span>Software
+        </div>
+        <div class="domain-opt" onclick="selectDomain(this,'Medical')">
+          <span class="domain-emoji">🏥</span>Medical
+        </div>
+        <div class="domain-opt" onclick="selectDomain(this,'Business')">
+          <span class="domain-emoji">📊</span>Business
+        </div>
+      </div>
+      <input type="hidden" id="domain">
+    </div>
+
+    <div class="form-row">
+      <div class="input-group">
+        <label class="input-label">Password</label>
+        <input type="password" class="input" id="password" placeholder="Min 8 characters">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Confirm password</label>
+        <input type="password" class="input" id="confirm" placeholder="Repeat password">
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="registerStudent()" style="margin-top:4px">Create account</button>
+  </div>
+
+  <div class="auth-footer anim d2">
+    Already have an account? <a href="student-login.html">Sign in</a>
+  </div>
+</div>
+
+<script>
+let selectedDomain = '';
+function selectDomain(el, domain) {
+  document.querySelectorAll('.domain-opt').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedDomain = domain;
+  document.getElementById('domain').value = domain;
+}
+
+async function registerStudent() {
+  const fullName = document.getElementById('fullName').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const university = document.getElementById('university').value.trim();
+  const password = document.getElementById('password').value;
+  const confirm = document.getElementById('confirm').value;
+  const errEl = document.getElementById('errorMsg');
+  const sucEl = document.getElementById('successMsg');
+  errEl.style.display = 'none'; sucEl.style.display = 'none';
+
+  if (!fullName || !email || !university || !selectedDomain || !password) {
+    errEl.textContent = 'Please fill in all fields and select a domain.';
+    errEl.style.display = 'block'; return;
+  }
+  if (password !== confirm) {
+    errEl.textContent = 'Passwords do not match.';
+    errEl.style.display = 'block'; return;
+  }
+  if (password.length < 8) {
+    errEl.textContent = 'Password must be at least 8 characters.';
+    errEl.style.display = 'block'; return;
+  }
+  try {
+    const res = await fetch('/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({fullName,email,password,domain:selectedDomain,university}) });
+    const data = await res.json();
+    if (res.ok) {
+      sucEl.textContent = 'Account created! Redirecting to sign in...';
+      sucEl.style.display = 'block';
+      setTimeout(() => window.location.href = '/student-login.html', 1200);
+    } else {
+      errEl.textContent = data.message || 'Registration failed.';
+      errEl.style.display = 'block';
+    }
+  } catch(e) {
+    errEl.textContent = 'Could not connect to server.';
+    errEl.style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connections | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.people-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+.person-card { padding:24px; text-align:center; transition:all .18s; }
+.person-card:hover { box-shadow:var(--shadow); border-color:var(--border-dark); transform:translateY(-2px); }
+.person-av { width:52px; height:52px; border-radius:50%; color:#fff; font-size:18px; font-weight:700; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; }
+.person-name { font-size:15px; font-weight:700; color:var(--text); margin-bottom:4px; }
+.person-meta { font-size:13px; color:var(--text-4); margin-bottom:4px; }
+.person-domain { margin-bottom:16px; }
+.person-btns { display:flex; gap:8px; justify-content:center; }
+.connected-dot { width:8px; height:8px; border-radius:50%; background:var(--green); display:inline-block; margin-right:6px; }
+
+/* Chat modal */
+.overlay { position:fixed; inset:0; background:rgba(26,31,54,.4); backdrop-filter:blur(4px); z-index:900; display:none; align-items:center; justify-content:center; padding:40px; }
+.overlay.show { display:flex; }
+.chat-modal { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); width:420px; height:520px; display:flex; flex-direction:column; box-shadow:var(--shadow-xl); overflow:hidden; }
+.chat-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.chat-title { font-size:15px; font-weight:700; color:var(--text); }
+.chat-close { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius); width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px; color:var(--text-3); transition:all .15s; }
+.chat-close:hover { background:var(--red-bg); color:var(--red); border-color:#fca5a5; }
+.chat-messages { flex:1; padding:16px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
+.msg { max-width:75%; padding:10px 14px; border-radius:10px; font-size:14px; line-height:1.5; }
+.msg-you { background:var(--blue); color:#fff; border-radius:10px 10px 2px 10px; align-self:flex-end; }
+.msg-them { background:var(--surface-2); color:var(--text); border-radius:10px 10px 10px 2px; align-self:flex-start; border:1px solid var(--border); }
+.msg-time { font-size:11px; opacity:.65; margin-top:4px; }
+.chat-input-row { padding:12px 16px; border-top:1px solid var(--border); display:flex; gap:8px; }
+.chat-input-row input { flex:1; padding:10px 14px; border:1px solid var(--border); border-radius:var(--radius); font-family:var(--font); font-size:14px; outline:none; }
+.chat-input-row input:focus { border-color:var(--blue); }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <a href="dashboard.html" class="sidebar-logo">Prashik<span>shan</span></a>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Main</div>
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item" href="marketplace.html"><span class="nav-icon">🔍</span>Marketplace</a>
+    <a class="nav-item" href="applications.html"><span class="nav-icon">📋</span>Applications</a>
+    <a class="nav-item active" href="connections.html"><span class="nav-icon">👥</span>Connections</a>
+    <div class="nav-group-label">Account</div>
+    <a class="nav-item" href="progress-journal.html"><span class="nav-icon">📓</span>Progress Journal</a>
+    <a class="nav-item" href="achievements.html"><span class="nav-icon">🏆</span>Achievements</a>
+    <a class="nav-item" href="notifications.html"><span class="nav-icon">🔔</span>Notifications</a>
+    <a class="nav-item" href="profile.html"><span class="nav-icon">👤</span>My Profile</a>
+    <a class="nav-item" href="submit-project.html"><span class="nav-icon">📤</span>Submit Work</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Guide Chat</a>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">→</span>Sign out</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" id="avLetter">S</div>
+      <div><div class="user-name" id="sidebarName">Student</div><div class="user-role">Student</div></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="header-row page-header fade-up">
+    <div>
+      <div class="page-eyebrow">Network</div>
+      <div class="page-title">Connections</div>
+      <div class="page-sub">Connect and collaborate with students across all domains.</div>
+    </div>
+    <span class="badge badge-blue" id="connCount">2 connected</span>
+  </div>
+
+  <div class="section-label fade-up d1">Suggested peers</div>
+
+  <div class="people-grid fade-up d2" id="peopleGrid"></div>
+</main>
+</div>
+
+<!-- Chat overlay -->
+<div class="overlay" id="overlay" onclick="closeChat(event)">
+  <div class="chat-modal">
+    <div class="chat-header">
+      <div class="chat-title" id="chatTitle">Chat</div>
+      <div class="chat-close" onclick="document.getElementById('overlay').classList.remove('show')">✕</div>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chatInput" placeholder="Type a message…">
+      <button class="btn btn-primary btn-sm" onclick="sendMsg()">Send</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PEOPLE = [
+  { id:1, name:'Rahul Sharma',  uni:'IIT Bombay',   domain:'Software Engineering', color:'#0570de', connected:true  },
+  { id:2, name:'Ananya Patel',  uni:'VIT Vellore',  domain:'Data Science',         color:'#a855f7', connected:true  },
+  { id:3, name:'Vikram Rao',    uni:'BITS Pilani',  domain:'Cyber Security',       color:'#1a7f37', connected:false },
+  { id:4, name:'Priya Singh',   uni:'NIT Trichy',   domain:'Software Engineering', color:'#0353a4', connected:false },
+  { id:5, name:'Mohit Verma',   uni:'DTU Delhi',    domain:'Business',             color:'#c2410c', connected:false },
+  { id:6, name:'Sara Iyer',     uni:'IIIT Hyd',     domain:'Medical',              color:'#6d28d9', connected:false },
+];
+
+let connected = new Set(PEOPLE.filter(p=>p.connected).map(p=>p.id));
+let currentChat = null;
+
+function render() {
+  document.getElementById('connCount').textContent = connected.size + ' connected';
+  document.getElementById('peopleGrid').innerHTML = PEOPLE.map(p => `
+    <div class="person-card card">
+      <div class="person-av" style="background:${p.color}">${p.name[0]}</div>
+      <div class="person-name">${p.name}</div>
+      <div class="person-meta">${p.uni}</div>
+      <div class="person-domain"><span class="badge badge-gray">${p.domain}</span></div>
+      <div class="person-btns">
+        ${connected.has(p.id) ? `
+          <button class="btn btn-sm" style="background:var(--green-bg);color:var(--green);border:1px solid #86efac" onclick="msg(${p.id})">💬 Message</button>
+          <button class="btn btn-secondary btn-sm" onclick="disconnect(${p.id})">Connected ✓</button>
+        ` : `
+          <button class="btn btn-primary btn-sm" onclick="connect(${p.id})">+ Connect</button>
+        `}
+      </div>
+    </div>`).join('');
+}
+
+function connect(id) { connected.add(id); render(); }
+function disconnect(id) { connected.delete(id); render(); }
+
+function msg(id) {
+  currentChat = PEOPLE.find(p=>p.id===id);
+  document.getElementById('chatTitle').textContent = currentChat.name;
+  loadMsgs();
+  document.getElementById('overlay').classList.add('show');
+  setTimeout(() => document.getElementById('chatInput').focus(), 100);
+}
+
+function closeChat(e) { if (e.target===document.getElementById('overlay')) document.getElementById('overlay').classList.remove('show'); }
+
+function loadMsgs() {
+  const chats = JSON.parse(localStorage.getItem('studentChats')||'{}');
+  const msgs = chats[currentChat.name] || [];
+  const box = document.getElementById('chatMessages');
+  box.innerHTML = msgs.length ? msgs.map(m => `<div class="msg ${m.self?'msg-you':'msg-them'}">${m.text}</div>`).join('') : `<div style="text-align:center;padding:30px;color:var(--text-4);font-size:14px">Start a conversation with ${currentChat.name}</div>`;
+  box.scrollTop = box.scrollHeight;
+}
+
+function sendMsg() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text || !currentChat) return;
+  const chats = JSON.parse(localStorage.getItem('studentChats')||'{}');
+  if (!chats[currentChat.name]) chats[currentChat.name] = [];
+  chats[currentChat.name].push({ text, self:true });
+  localStorage.setItem('studentChats', JSON.stringify(chats));
+  input.value = '';
+  loadMsgs();
+}
+
+document.getElementById('chatInput').addEventListener('keydown', e => { if (e.key==='Enter') sendMsg(); });
+
+const _s = JSON.parse(localStorage.getItem('student'));
+if (!_s) { location.href='/student-login.html'; }
+else {
+  document.getElementById('sidebarName').textContent = _s.fullName||'Student';
+  document.getElementById('avLetter').textContent = (_s.fullName||'S').charAt(0).toUpperCase();
+}
+function logout() { localStorage.clear(); location.href='/index.html'; }
+render();
+</script>
+</body>
+</html>

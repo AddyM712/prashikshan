@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Chat | Guide | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+body { overflow: hidden; }
+
+.chat-layout { display: flex; flex: 1; min-width: 0; height: 100vh; }
+
+/* Students panel */
+.students-panel {
+  width: 280px; flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  display: flex; flex-direction: column;
+}
+.sp-header {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sp-title { font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: -.3px; }
+.sp-sub { font-size: 13px; color: var(--text-4); margin-top: 2px; }
+.sp-search { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.sp-search input {
+  width: 100%; padding: 8px 12px; border: 1px solid var(--border);
+  border-radius: var(--radius); font-family: var(--font); font-size: 13px;
+  outline: none; background: var(--surface-2); color: var(--text);
+  transition: all .15s;
+}
+.sp-search input:focus { border-color: var(--blue); background: var(--surface); }
+.student-list { flex: 1; overflow-y: auto; padding: 6px 8px; }
+
+.student-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 10px; border-radius: var(--radius);
+  cursor: pointer; transition: all .15s; position: relative;
+}
+.student-item:hover { background: var(--surface-2); }
+.student-item.active { background: var(--blue-light); }
+.si-av {
+  width: 40px; height: 40px; border-radius: 50%;
+  color: #fff; font-size: 15px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; position: relative;
+}
+.si-online {
+  position: absolute; bottom: 1px; right: 1px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--green); border: 2px solid var(--surface);
+}
+.si-body { flex: 1; min-width: 0; }
+.si-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.si-project { font-size: 12px; color: var(--text-4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.si-badge {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--blue); color: #fff;
+  font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Chat panel */
+.chat-panel { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--bg); }
+
+.chat-header {
+  padding: 16px 24px; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.chat-header-left { display: flex; align-items: center; gap: 14px; }
+.ch-av {
+  width: 38px; height: 38px; border-radius: 50%;
+  color: #fff; font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ch-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.ch-status { font-size: 12px; color: var(--green); font-weight: 500; margin-top: 2px; }
+.chat-header-actions { display: flex; gap: 8px; }
+
+.chat-body {
+  flex: 1; overflow-y: auto; padding: 24px 28px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.date-sep {
+  text-align: center; font-size: 12px; color: var(--text-4);
+  font-weight: 500; position: relative; margin: 8px 0;
+}
+.date-sep::before, .date-sep::after {
+  content: ''; position: absolute; top: 50%;
+  width: calc(50% - 60px); height: 1px; background: var(--border);
+}
+.date-sep::before { left: 0; }
+.date-sep::after { right: 0; }
+
+.msg-group { display: flex; align-items: flex-end; gap: 10px; }
+.msg-group.me { flex-direction: row-reverse; }
+.mg-av {
+  width: 30px; height: 30px; border-radius: 50%;
+  color: #fff; font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.mg-bubbles { display: flex; flex-direction: column; gap: 4px; max-width: 60%; }
+.msg-group.me .mg-bubbles { align-items: flex-end; }
+.bubble {
+  padding: 10px 14px; border-radius: 16px;
+  font-size: 14px; line-height: 1.55; word-break: break-word;
+}
+.bubble-them {
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); border-radius: 4px 16px 16px 16px;
+}
+.bubble-me {
+  background: var(--blue); color: #fff;
+  border-radius: 16px 4px 16px 16px;
+}
+.msg-time { font-size: 11px; color: var(--text-4); margin-top: 4px; padding: 0 2px; }
+.msg-group.me .msg-time { text-align: right; }
+
+.empty-chat {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  color: var(--text-4); padding: 40px;
+}
+.empty-chat-icon { font-size: 52px; margin-bottom: 16px; opacity: .35; }
+.empty-chat-title { font-size: 16px; font-weight: 600; color: var(--text-3); margin-bottom: 6px; }
+.empty-chat-sub { font-size: 14px; text-align: center; max-width: 300px; line-height: 1.6; }
+
+.chat-input-wrap {
+  padding: 14px 24px; background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.chat-input-wrap input {
+  flex: 1; padding: 11px 18px;
+  border: 1px solid var(--border); border-radius: 24px;
+  font-family: var(--font); font-size: 14px; color: var(--text);
+  outline: none; background: var(--bg); transition: all .15s;
+}
+.chat-input-wrap input:focus {
+  border-color: var(--blue); background: var(--surface);
+  box-shadow: 0 0 0 3px rgba(5,112,222,.08);
+}
+
+/* No conversation selected */
+.no-convo {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: var(--bg); color: var(--text-4);
+}
+.no-convo-icon { font-size: 56px; margin-bottom: 16px; opacity: .25; }
+.no-convo-title { font-size: 18px; font-weight: 600; color: var(--text-3); margin-bottom: 6px; }
+.no-convo-sub { font-size: 14px; text-align: center; max-width: 280px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <a href="guide-dashboard.html" class="sidebar-logo">Prashik<span>shan</span></a>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Guide Panel</div>
+    <a class="nav-item" href="guide-dashboard.html"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item" href="guide-applications.html"><span class="nav-icon">📋</span>Applications</a>
+    <a class="nav-item" href="review-submissions.html"><span class="nav-icon">📝</span>Review Submissions</a>
+    <a class="nav-item" href="guide-rubric.html"><span class="nav-icon">📐</span>Rubric Grading</a>
+    <a class="nav-item" href="guide-announcements.html"><span class="nav-icon">📢</span>Announcements</a>
+    <a class="nav-item active" href="guide-chat.html"><span class="nav-icon">💬</span>Student Chat</a>
+    <a class="nav-item" href="guide-analytics.html"><span class="nav-icon">📊</span>Analytics</a>
+    <a class="nav-item" href="guide-students.html"><span class="nav-icon">👥</span>Student Tracker</a>
+    <a class="nav-item" href="guide-schedule.html"><span class="nav-icon">🗓</span>Schedule</a>
+    <div class="nav-group-label">Account</div>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">→</span>Sign out</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" style="background:#f59e0b;color:#1a1f36" id="avLetter">G</div>
+      <div>
+        <div class="user-name" id="guideName">Guide</div>
+        <div class="user-role">Expert Guide</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- CHAT AREA -->
+<div class="chat-layout">
+
+  <!-- Students panel -->
+  <div class="students-panel">
+    <div class="sp-header">
+      <div class="sp-title">Messages</div>
+      <div class="sp-sub">Your active students</div>
+    </div>
+    <div class="sp-search">
+      <input type="text" id="searchStudents" placeholder="Search students…" oninput="filterStudents()">
+    </div>
+    <div class="student-list" id="studentList"></div>
+  </div>
+
+  <!-- Active chat -->
+  <div class="chat-panel" id="chatPanel">
+    <div class="no-convo" id="noConvo">
+      <div class="no-convo-icon">💬</div>
+      <div class="no-convo-title">Select a student</div>
+      <div class="no-convo-sub">Choose a student from the list to start or continue a conversation.</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+const STUDENTS = [
+  { id:'rahul',  name:'Rahul Sharma',  project:'AI Resume Analyzer',            uni:'IIT Bombay',  color:'#0570de', online:true,  unread:2 },
+  { id:'ananya', name:'Ananya Patel',  project:'Student Performance Predictor', uni:'VIT Vellore', color:'#a855f7', online:true,  unread:0 },
+  { id:'vikram', name:'Vikram Rao',    project:'Cyber Threat Detector',         uni:'BITS Pilani', color:'#1a7f37', online:false, unread:0 },
+  { id:'priya',  name:'Priya Singh',   project:'AI Resume Analyzer',            uni:'NIT Trichy',  color:'#0353a4', online:false, unread:1 },
+];
+
+const DEFAULTS = {
+  rahul:  [
+    { text:"Good morning Dr. Sharma! I've finished the NLP module.", me:false, time:'9:14 AM' },
+    { text:"That's great progress Rahul! How does the accuracy look?", me:true, time:'9:17 AM' },
+    { text:"About 84% on the test set. I'm trying to push it past 90%.", me:false, time:'9:18 AM' },
+    { text:"Try fine-tuning with a smaller learning rate. Also consider adding more training data from Kaggle.", me:true, time:'9:21 AM' },
+    { text:"Will do! I'll send you the updated results by end of day.", me:false, time:'9:22 AM' },
+  ],
+  ananya: [
+    { text:"Hi Professor, I've submitted the data cleaning pipeline. Please review when you get a chance.", me:false, time:'Yesterday' },
+    { text:"I'll review it today. Looking good from the screenshots you shared!", me:true, time:'Yesterday' },
+  ],
+  vikram: [],
+  priya:  [
+    { text:"Dr. Sharma, I have a question about the feature extraction step.", me:false, time:'Monday' },
+  ],
+};
+
+let current = null;
+let messages = {};
+let allStudents = [...STUDENTS];
+
+// Init messages from localStorage or defaults
+STUDENTS.forEach(s => {
+  const saved = localStorage.getItem('guide_chat_' + s.id);
+  messages[s.id] = saved ? JSON.parse(saved) : [...(DEFAULTS[s.id] || [])];
+});
+
+function filterStudents() {
+  const q = document.getElementById('searchStudents').value.toLowerCase();
+  allStudents = q ? STUDENTS.filter(s => s.name.toLowerCase().includes(q) || s.project.toLowerCase().includes(q)) : [...STUDENTS];
+  renderStudentList();
+}
+
+function renderStudentList() {
+  document.getElementById('studentList').innerHTML = allStudents.map(s => `
+    <div class="student-item ${current === s.id ? 'active' : ''}" onclick="selectStudent('${s.id}')">
+      <div class="si-av" style="background:${s.color}">
+        ${s.name[0]}
+        ${s.online ? '<div class="si-online"></div>' : ''}
+      </div>
+      <div class="si-body">
+        <div class="si-name">${s.name}</div>
+        <div class="si-project">${s.project}</div>
+      </div>
+      ${s.unread > 0 ? `<div class="si-badge">${s.unread}</div>` : ''}
+    </div>`).join('');
+}
+
+function selectStudent(id) {
+  current = id;
+  // Clear unread
+  const s = STUDENTS.find(x => x.id === id);
+  if (s) s.unread = 0;
+  renderStudentList();
+  renderChat();
+}
+
+function renderChat() {
+  const s = STUDENTS.find(x => x.id === current);
+  if (!s) return;
+
+  const panel = document.getElementById('chatPanel');
+  const msgs = messages[current] || [];
+  const guide = JSON.parse(localStorage.getItem('guide') || '{}');
+  const guideInitial = (guide.name || 'G')[0].toUpperCase();
+
+  const msgsHTML = msgs.length
+    ? `<div class="date-sep">Today</div>` + msgs.map(m => `
+        <div class="msg-group ${m.me ? 'me' : ''}">
+          <div class="mg-av" style="background:${m.me ? '#f59e0b' : s.color};color:${m.me?'#1a1f36':'#fff'}">${m.me ? guideInitial : s.name[0]}</div>
+          <div class="mg-bubbles">
+            <div class="bubble ${m.me ? 'bubble-me' : 'bubble-them'}">${m.text}</div>
+            <div class="msg-time">${m.time || ''}</div>
+          </div>
+        </div>`).join('')
+    : `<div class="empty-chat">
+        <div class="empty-chat-icon">💬</div>
+        <div class="empty-chat-title">No messages yet</div>
+        <div class="empty-chat-sub">Start the conversation with ${s.name} about their project.</div>
+      </div>`;
+
+  panel.innerHTML = `
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="ch-av" style="background:${s.color}">${s.name[0]}</div>
+        <div>
+          <div class="ch-name">${s.name}</div>
+          <div class="ch-status">${s.online ? '● Online' : '○ Offline'} — ${s.project}</div>
+        </div>
+      </div>
+      <div class="chat-header-actions">
+        <a href="review-submissions.html" class="btn btn-secondary btn-sm">📝 Review work</a>
+      </div>
+    </div>
+    <div class="chat-body" id="chatBody">${msgsHTML}</div>
+    <div class="chat-input-wrap">
+      <input type="text" id="chatInput" placeholder="Message ${s.name}…" onkeydown="if(event.key==='Enter')send()">
+      <button class="btn btn-primary" onclick="send()">Send</button>
+    </div>`;
+
+  // Scroll to bottom
+  setTimeout(() => {
+    const body = document.getElementById('chatBody');
+    if (body) body.scrollTop = body.scrollHeight;
+  }, 50);
+}
+
+function send() {
+  const input = document.getElementById('chatInput');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text || !current) return;
+  const now = new Date();
+  const time = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+  if (!messages[current]) messages[current] = [];
+  messages[current].push({ text, me:true, time });
+  localStorage.setItem('guide_chat_' + current, JSON.stringify(messages[current]));
+  input.value = '';
+  renderChat();
+}
+
+// Init guide info
+const _g = JSON.parse(localStorage.getItem('guide'));
+if (_g) {
+  document.getElementById('guideName').textContent = _g.name || 'Guide';
+  document.getElementById('avLetter').textContent = (_g.name || 'G')[0];
+}
+function logout() { localStorage.removeItem('guide'); location.href = '/index.html'; }
+
+// Auto-select first student
+renderStudentList();
+selectStudent(STUDENTS[0].id);
+</script>
+</body>
+</html>

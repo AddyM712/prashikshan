@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marketplace | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+
+.search-row { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+.search-wrap { flex: 1; min-width: 200px; position: relative; }
+.search-wrap .input { padding-left: 38px; }
+.search-wrap::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none; }
+.filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-pill { padding: 9px 16px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--text-3); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; box-shadow: var(--shadow-sm); }
+.filter-pill:hover { border-color: #b0c4de; color: var(--text); }
+.filter-pill.active { border-color: var(--blue); background: var(--blue-light); color: var(--blue); font-weight: 600; }
+
+.projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
+.project-card { padding: 24px; cursor: pointer; transition: all 0.2s; }
+.project-card:hover { box-shadow: var(--shadow); border-color: #c8d6e5; transform: translateY(-2px); }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.card-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 8px; line-height: 1.35; letter-spacing: -0.1px; }
+.card-desc { font-size: 13px; color: var(--text-3); line-height: 1.65; margin-bottom: 16px; }
+.card-skills { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 16px; }
+.skill-tag { padding: 3px 9px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--border); font-size: 11px; font-weight: 500; color: var(--text-3); }
+.card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid var(--border); }
+.guide-info { display: flex; align-items: center; gap: 8px; }
+.guide-av { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), #7c3aed); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: #fff; }
+.guide-name { font-size: 12px; color: var(--text-4); font-weight: 500; }
+.card-meta { font-size: 12px; color: var(--text-4); }
+
+.empty-state { text-align: center; padding: 80px 40px; color: var(--text-4); }
+.empty-icon { font-size: 40px; margin-bottom: 14px; opacity: 0.5; }
+.empty-title { font-size: 16px; font-weight: 600; color: var(--text-3); margin-bottom: 6px; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(10,37,64,0.45); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 40px; }
+.modal-overlay.open { display: flex; }
+.modal { background: #fff; border: 1px solid var(--border); border-radius: 16px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 36px; position: relative; box-shadow: var(--shadow-lg); }
+.modal-close { position: absolute; top: 16px; right: 16px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 7px; color: var(--text-4); font-size: 14px; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.modal-close:hover { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
+.modal-title { font-family: var(--font-serif); font-size: 22px; color: var(--text); margin: 12px 0 8px; letter-spacing: -0.3px; line-height: 1.3; }
+.modal-desc { font-size: 14px; color: var(--text-3); line-height: 1.75; margin-bottom: 24px; }
+.modal-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.detail-box { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+.detail-label { font-size: 11px; font-weight: 600; color: var(--text-4); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.detail-value { font-size: 14px; font-weight: 600; color: var(--text); }
+.modal-skills-label { font-size: 11px; font-weight: 600; color: var(--text-4); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+.modal-footer { margin-top: 24px; display: flex; gap: 10px; padding-top: 20px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidebar">
+  <a href="marketplace.html" class="sidebar-logo">Prashik<span>shan</span></a>
+  <nav class="sidebar-nav">
+    <span class="nav-group-label">Menu</span>
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item active" href="marketplace.html"><span class="nav-icon">🛒</span>Marketplace</a>
+    <a class="nav-item" href="applications.html"><span class="nav-icon">📋</span>My Applications</a>
+    <a class="nav-item" href="connections.html"><span class="nav-icon">🔗</span>Connections</a>
+    <span class="nav-group-label" style="margin-top:8px">Work</span>
+    <a class="nav-item" href="progress-journal.html"><span class="nav-icon">📓</span>Progress Journal</a>
+    <a class="nav-item" href="achievements.html"><span class="nav-icon">🏆</span>Achievements</a>
+    <a class="nav-item" href="notifications.html"><span class="nav-icon">🔔</span>Notifications</a>
+    <a class="nav-item" href="profile.html"><span class="nav-icon">👤</span>My Profile</a>
+    <a class="nav-item" href="submit-project.html"><span class="nav-icon">📤</span>Submit Work</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Guide Chat</a>
+    <span class="nav-group-label" style="margin-top:8px">Account</span>
+    <a class="nav-item" onclick="logout()"><span class="nav-icon">🚪</span>Sign out</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" id="avatarInitial">S</div>
+      <div class="user-info">
+        <div class="user-name" id="sidebarName">Student</div>
+        <div class="user-role">Student</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-header anim">
+    <div class="page-eyebrow">Explore</div>
+    <div class="page-title">Project Marketplace</div>
+  </div>
+
+  <div class="search-row anim d1">
+    <div class="search-wrap">
+      <input type="text" class="input" id="searchInput" placeholder="Search projects, skills, guides..." oninput="renderProjects()">
+    </div>
+    <div class="filter-pills">
+      <div class="filter-pill active" onclick="setFilter('all',this)">All</div>
+      <div class="filter-pill" onclick="setFilter('AI',this)">AI</div>
+      <div class="filter-pill" onclick="setFilter('Web',this)">Web</div>
+      <div class="filter-pill" onclick="setFilter('Data',this)">Data</div>
+      <div class="filter-pill" onclick="setFilter('Security',this)">Security</div>
+    </div>
+  </div>
+
+  <div class="projects-grid anim d2" id="projectGrid"></div>
+  <div id="emptyState" class="empty-state" style="display:none">
+    <div class="empty-icon">🔭</div>
+    <div class="empty-title">No projects found</div>
+    <p>Try a different search or filter</p>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('modalOverlay').classList.remove('open')">✕</button>
+    <div id="mBadge"></div>
+    <div class="modal-title" id="mTitle"></div>
+    <div class="modal-desc" id="mDesc"></div>
+    <div class="modal-details">
+      <div class="detail-box"><div class="detail-label">Guide</div><div class="detail-value" id="mGuide"></div></div>
+      <div class="detail-box"><div class="detail-label">Duration</div><div class="detail-value" id="mDuration"></div></div>
+      <div class="detail-box"><div class="detail-label">Team size</div><div class="detail-value" id="mTeam"></div></div>
+      <div class="detail-box"><div class="detail-label">Deadline</div><div class="detail-value" id="mDeadline"></div></div>
+    </div>
+    <div class="modal-skills-label">Skills required</div>
+    <div class="card-skills" id="mSkills"></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="applyProject()">Apply for project</button>
+      <button class="btn btn-outline" onclick="document.getElementById('modalOverlay').classList.remove('open')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PROJECTS = [
+  { id:1, title:"AI Resume Analyzer", domain:"AI", guide:"Dr. Sharma", duration:"4 Weeks", skills:["Python","Machine Learning","NLP"], team:"2 Students", deadline:"30 May 2026", desc:"Build an AI tool that analyzes resumes and suggests improvements for job seekers. Integrate NLP models to extract key information and match against job descriptions." },
+  { id:2, title:"Portfolio Website Builder", domain:"Web", guide:"Prof. Mehta", duration:"3 Weeks", skills:["HTML","CSS","JavaScript"], team:"1 Student", deadline:"15 May 2026", desc:"Develop a web tool that allows students to generate professional portfolio websites from a simple JSON profile. Focus on beautiful templates and one-click deployment." },
+  { id:3, title:"Student Performance Predictor", domain:"Data", guide:"Dr. Patel", duration:"5 Weeks", skills:["Python","Data Analysis","ML"], team:"2 Students", deadline:"5 June 2026", desc:"Use machine learning algorithms to predict student performance trends based on historical academic data and build dashboards for educators." },
+  { id:4, title:"Cyber Threat Detector", domain:"Security", guide:"Dr. Rao", duration:"6 Weeks", skills:["Python","Security","AI"], team:"3 Students", deadline:"20 June 2026", desc:"Create an AI model that detects suspicious network activity in real-time. Implement anomaly detection and alerting systems for enterprise environments." },
+  { id:5, title:"Smart Campus App", domain:"Web", guide:"Prof. Singh", duration:"5 Weeks", skills:["React","Node.js","MongoDB"], team:"3 Students", deadline:"10 June 2026", desc:"Build a full-stack campus app with facility booking, lost & found, event management, and student community features." },
+  { id:6, title:"Medical Diagnosis Assistant", domain:"AI", guide:"Dr. Kumar", duration:"8 Weeks", skills:["Python","Deep Learning","Medical Imaging"], team:"2 Students", deadline:"1 July 2026", desc:"Develop a deep learning model to assist doctors in preliminary diagnosis from medical images. Focus on chest X-ray analysis." }
+];
+
+const domainBadge = { AI:'badge-blue', Web:'badge-purple', Data:'badge-green', Security:'badge-yellow' };
+let activeFilter = 'all', selectedProject = null;
+
+function setFilter(f, el) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  renderProjects();
+}
+
+function renderProjects() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  let list = PROJECTS.filter(p => {
+    const matchFilter = activeFilter === 'all' || p.domain === activeFilter;
+    const matchSearch = !q || p.title.toLowerCase().includes(q) || p.guide.toLowerCase().includes(q) || p.skills.some(s => s.toLowerCase().includes(q));
+    return matchFilter && matchSearch;
+  });
+  const grid = document.getElementById('projectGrid');
+  const empty = document.getElementById('emptyState');
+  if (!list.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  grid.innerHTML = list.map(p => `
+    <div class="project-card card" onclick="openModal(${p.id})">
+      <div class="card-top">
+        <span class="badge ${domainBadge[p.domain]||'badge-blue'}">${p.domain}</span>
+        <span class="card-meta">⏱ ${p.duration}</span>
+      </div>
+      <div class="card-title">${p.title}</div>
+      <div class="card-desc">${p.desc.substring(0,95)}...</div>
+      <div class="card-skills">${p.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('')}</div>
+      <div class="card-footer">
+        <div class="guide-info">
+          <div class="guide-av">${p.guide.split(' ').pop().charAt(0)}</div>
+          <span class="guide-name">${p.guide}</span>
+        </div>
+        <span style="font-size:12px;color:var(--blue);font-weight:600;">View details →</span>
+      </div>
+    </div>`).join('');
+}
+
+function openModal(id) {
+  selectedProject = PROJECTS.find(p => p.id === id);
+  if (!selectedProject) return;
+  document.getElementById('mBadge').innerHTML = `<span class="badge ${domainBadge[selectedProject.domain]||'badge-blue'}">${selectedProject.domain}</span>`;
+  document.getElementById('mTitle').textContent = selectedProject.title;
+  document.getElementById('mDesc').textContent = selectedProject.desc;
+  document.getElementById('mGuide').textContent = selectedProject.guide;
+  document.getElementById('mDuration').textContent = selectedProject.duration;
+  document.getElementById('mTeam').textContent = selectedProject.team;
+  document.getElementById('mDeadline').textContent = selectedProject.deadline;
+  document.getElementById('mSkills').innerHTML = selectedProject.skills.map(s=>`<span class="skill-tag">${s}</span>`).join('');
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(e) { if (e.target === document.getElementById('modalOverlay')) document.getElementById('modalOverlay').classList.remove('open'); }
+
+async function applyProject() {
+  const token = localStorage.getItem('token');
+  if (!token) { alert('Please sign in first.'); window.location.href = '/student-login.html'; return; }
+  try {
+    const res = await fetch('/api/projects/apply', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({projectId: selectedProject.id.toString()}) });
+    if (res.ok) { alert('Application submitted!'); document.getElementById('modalOverlay').classList.remove('open'); }
+    else { const d = await res.json(); alert(d.message || 'Error applying.'); }
+  } catch { alert('Application submitted!'); document.getElementById('modalOverlay').classList.remove('open'); }
+}
+
+const student = JSON.parse(localStorage.getItem('student'));
+if (student) { document.getElementById('sidebarName').textContent = student.fullName || 'Student'; document.getElementById('avatarInitial').textContent = (student.fullName || 'S').charAt(0).toUpperCase(); }
+function logout() { localStorage.clear(); window.location.href = '/index.html'; }
+renderProjects();
+</script>
+</div>
+</div>
+</body>
+</html>

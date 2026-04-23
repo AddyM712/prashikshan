@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Achievements | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.layout { display: flex; min-height: 100vh; }
+.main { flex: 1; min-width: 0; padding: 40px 48px; background: var(--bg); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.card-pad { padding: 24px; }
+.section-label { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 14px; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+.grid-main { display: grid; grid-template-columns: 1fr 300px; gap: 24px; }
+
+/* Hero XP card */
+.xp-hero { padding: 32px; background: linear-gradient(135deg, #0353a4 0%, #0570de 50%, #7c3aed 100%); border-radius: var(--radius-xl); color: #fff; margin-bottom: 24px; position: relative; overflow: hidden; }
+.xp-hero::before { content: ''; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,.06); }
+.xp-hero::after { content: ''; position: absolute; bottom: -60px; left: 20%; width: 150px; height: 150px; border-radius: 50%; background: rgba(255,255,255,.04); }
+.xp-name { font-size: 13px; font-weight: 600; opacity: .8; margin-bottom: 4px; letter-spacing: .5px; text-transform: uppercase; }
+.xp-level { font-size: 36px; font-weight: 900; letter-spacing: -1.5px; line-height: 1; margin-bottom: 4px; }
+.xp-title { font-size: 14px; opacity: .85; margin-bottom: 20px; }
+.xp-bar-wrap { margin-bottom: 8px; }
+.xp-bar-bg { height: 8px; background: rgba(255,255,255,.2); border-radius: 4px; overflow: hidden; }
+.xp-bar-fill { height: 100%; background: #fff; border-radius: 4px; transition: width .8s ease; }
+.xp-bar-label { display: flex; justify-content: space-between; font-size: 12px; opacity: .8; margin-top: 6px; }
+.xp-stats { display: flex; gap: 24px; margin-top: 20px; position: relative; z-index: 1; }
+.xp-stat { text-align: center; }
+.xp-stat-val { font-size: 24px; font-weight: 800; line-height: 1; }
+.xp-stat-lab { font-size: 11px; opacity: .7; margin-top: 3px; text-transform: uppercase; letter-spacing: .5px; }
+
+/* Badge grid */
+.badge-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.badge-card { padding: 20px 16px; border: 1px solid var(--border); border-radius: var(--radius-lg); text-align: center; transition: all .2s; cursor: default; position: relative; }
+.badge-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.badge-card.locked { opacity: .45; filter: grayscale(0.7); }
+.badge-card.unlocked { border-color: transparent; }
+.badge-card.unlocked.gold { background: linear-gradient(135deg, #fef9c3, #fef3c7); border-color: #fcd34d; }
+.badge-card.unlocked.blue { background: linear-gradient(135deg, #eff6ff, #dbeafe); border-color: #93c5fd; }
+.badge-card.unlocked.green { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border-color: #86efac; }
+.badge-card.unlocked.purple { background: linear-gradient(135deg, #faf5ff, #ede9fe); border-color: #c4b5fd; }
+.badge-emoji { font-size: 32px; margin-bottom: 8px; display: block; }
+.badge-name { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.badge-desc { font-size: 11px; color: var(--text-4); line-height: 1.4; }
+.badge-new { position: absolute; top: -6px; right: -6px; background: var(--red); color: #fff; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 20px; }
+.badge-xp { font-size: 10px; font-weight: 700; color: var(--blue); margin-top: 6px; }
+
+/* Leaderboard */
+.lb-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius-lg); margin-bottom: 6px; transition: all .15s; }
+.lb-row:hover { background: var(--surface-2); }
+.lb-row.me { background: var(--blue-light); border: 1px solid #93c5fd; }
+.lb-rank { width: 28px; text-align: center; font-size: 14px; font-weight: 800; color: var(--text-3); flex-shrink: 0; }
+.lb-rank.gold { color: #f59e0b; font-size: 16px; }
+.lb-rank.silver { color: #94a3b8; font-size: 16px; }
+.lb-rank.bronze { color: #cd7c34; font-size: 16px; }
+.lb-av { width: 36px; height: 36px; border-radius: 50%; color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.lb-body { flex: 1; min-width: 0; }
+.lb-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.lb-uni { font-size: 11px; color: var(--text-4); }
+.lb-right { text-align: right; flex-shrink: 0; }
+.lb-xp { font-size: 14px; font-weight: 800; color: var(--blue); }
+.lb-level { font-size: 11px; color: var(--text-4); }
+.lb-badge { font-size: 14px; }
+
+/* Streak calendar */
+.streak-cal { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+.sc-day { aspect-ratio: 1; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
+.sc-done { background: var(--blue); color: #fff; }
+.sc-today { background: var(--blue-light); color: var(--blue); border: 2px solid var(--blue); }
+.sc-empty { background: var(--surface-2); color: var(--text-4); }
+.sc-missed { background: #fde8e8; color: var(--red); }
+
+/* Tabs */
+.tab-bar { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+.tab { padding: 10px 20px; font-size: 13px; font-weight: 600; color: var(--text-3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all .15s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+/* Toast */
+@keyframes slideIn { from { transform: translateX(120%); opacity:0; } to { transform: translateX(0); opacity:1; } }
+.toast { position: fixed; bottom: 28px; right: 28px; background: var(--text); color: #fff; padding: 14px 20px; border-radius: var(--radius-lg); font-size: 14px; font-weight: 600; z-index: 9999; animation: slideIn .3s ease; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 10px; }
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <a href="dashboard.html" class="sidebar-logo">Prashik<span>shan</span></a>
+  <nav class="sidebar-nav">
+    <span class="nav-group-label">Menu</span>
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item" href="marketplace.html"><span class="nav-icon">🛒</span>Marketplace</a>
+    <a class="nav-item" href="applications.html"><span class="nav-icon">📋</span>My Applications</a>
+    <a class="nav-item" href="connections.html"><span class="nav-icon">🔗</span>Connections</a>
+    <span class="nav-group-label" style="margin-top:8px">Work</span>
+    <a class="nav-item" href="progress-journal.html"><span class="nav-icon">📓</span>Progress Journal</a>
+    <a class="nav-item active" href="achievements.html"><span class="nav-icon">🏆</span>Achievements</a>
+    <a class="nav-item" href="profile.html"><span class="nav-icon">👤</span>My Profile</a>
+    <a class="nav-item" href="submit-project.html"><span class="nav-icon">📤</span>Submit Work</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Guide Chat</a>
+    <span class="nav-group-label" style="margin-top:8px">Account</span>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">🚪</span>Sign out</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" id="avLetter">S</div>
+      <div><div class="user-name" id="sidebarName">Student</div><div class="user-role">Student</div></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <!-- XP Hero -->
+  <div class="xp-hero fade-up">
+    <div class="xp-name" id="xpStudentName">Rahul Sharma</div>
+    <div class="xp-level">Level 5 <span style="font-size:16px;opacity:.8">— Rising Innovator</span></div>
+    <div class="xp-bar-wrap">
+      <div class="xp-bar-bg"><div class="xp-bar-fill" id="xpFill" style="width:68%"></div></div>
+      <div class="xp-bar-label"><span id="xpCurrent">680 XP</span><span id="xpNext">1000 XP to Level 6</span></div>
+    </div>
+    <div class="xp-stats">
+      <div class="xp-stat"><div class="xp-stat-val" id="xpTotal">680</div><div class="xp-stat-lab">Total XP</div></div>
+      <div class="xp-stat"><div class="xp-stat-val" id="badgeCount">8</div><div class="xp-stat-lab">Badges</div></div>
+      <div class="xp-stat"><div class="xp-stat-val">#4</div><div class="xp-stat-lab">Rank</div></div>
+      <div class="xp-stat"><div class="xp-stat-val">7🔥</div><div class="xp-stat-lab">Streak</div></div>
+    </div>
+  </div>
+
+  <div class="grid-main">
+    <!-- Left -->
+    <div>
+      <!-- Tabs -->
+      <div class="tab-bar fade-up d1">
+        <div class="tab active" onclick="showTab('badges',this)">🏅 Badges</div>
+        <div class="tab" onclick="showTab('leaderboard',this)">🏆 Leaderboard</div>
+        <div class="tab" onclick="showTab('history',this)">📜 XP History</div>
+      </div>
+
+      <!-- Badges tab -->
+      <div id="tab-badges" class="fade-up d2">
+        <div class="between" style="margin-bottom:16px">
+          <div class="section-label" style="margin:0">Your Badges</div>
+          <span style="font-size:13px;color:var(--text-4)" id="badgeSummary">8 earned · 4 locked</span>
+        </div>
+        <div class="badge-grid" id="badgeGrid"></div>
+      </div>
+
+      <!-- Leaderboard tab -->
+      <div id="tab-leaderboard" style="display:none" class="fade-up d2">
+        <div class="between" style="margin-bottom:16px">
+          <div class="section-label" style="margin:0">This Month's Rankings</div>
+          <select class="input" style="width:150px;padding:7px 12px;font-size:13px" onchange="renderLeaderboard(this.value)">
+            <option value="xp">By XP</option>
+            <option value="badges">By Badges</option>
+            <option value="streak">By Streak</option>
+          </select>
+        </div>
+        <div id="lbList"></div>
+      </div>
+
+      <!-- XP History tab -->
+      <div id="tab-history" style="display:none" class="fade-up d2">
+        <div class="section-label">XP Activity Log</div>
+        <div id="xpHistory"></div>
+      </div>
+    </div>
+
+    <!-- Right sidebar -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <!-- Next badge -->
+      <div class="card card-pad fade-up d2">
+        <div class="section-label">Next Badge</div>
+        <div style="text-align:center;padding:12px 0">
+          <div style="font-size:40px;filter:grayscale(.8);opacity:.5">🚀</div>
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin:8px 0 4px">Launch Ready</div>
+          <div style="font-size:12px;color:var(--text-3);margin-bottom:14px">Submit final project with a demo video</div>
+          <div style="height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;margin-bottom:6px">
+            <div style="height:100%;width:60%;background:var(--blue);border-radius:3px"></div>
+          </div>
+          <div style="font-size:12px;color:var(--text-4)">3 of 5 requirements met</div>
+        </div>
+      </div>
+
+      <!-- Streak calendar -->
+      <div class="card card-pad fade-up d3">
+        <div class="section-label">Daily Streak — March</div>
+        <div class="streak-cal" id="streakCal"></div>
+        <div style="display:flex;gap:12px;margin-top:12px;font-size:11px;color:var(--text-4)">
+          <span><span style="display:inline-block;width:10px;height:10px;background:var(--blue);border-radius:2px;vertical-align:middle;margin-right:3px"></span>Active</span>
+          <span><span style="display:inline-block;width:10px;height:10px;background:#fde8e8;border-radius:2px;vertical-align:middle;margin-right:3px"></span>Missed</span>
+        </div>
+      </div>
+
+      <!-- Domain rank -->
+      <div class="card card-pad fade-up d4">
+        <div class="section-label">Domain Ranking</div>
+        <div style="font-size:13px;color:var(--text-3);margin-bottom:14px">Software Engineering · IIT Bombay</div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="font-size:48px;font-weight:900;color:var(--blue);letter-spacing:-2px">#2</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">Out of 18 students</div>
+            <div style="font-size:12px;color:var(--text-4);margin-top:3px">Top 11% in your domain</div>
+            <div style="font-size:12px;color:var(--green);font-weight:600;margin-top:4px">▲ Up 2 places this week</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+const BADGES = [
+  { id:'first_apply',  name:'First Application',  desc:'Applied to your first project',         emoji:'📋', color:'blue',   xp:50,  unlocked:true  },
+  { id:'shortlisted',  name:'Shortlisted!',        desc:'Got shortlisted for a project',         emoji:'⭐', color:'gold',   xp:100, unlocked:true, isNew:true },
+  { id:'journal_3',    name:'Journal Starter',     desc:'Wrote 3 journal entries',               emoji:'📓', color:'blue',   xp:30,  unlocked:true  },
+  { id:'milestone_1',  name:'First Milestone',     desc:'Completed your first milestone',        emoji:'🎯', color:'green',  xp:150, unlocked:true  },
+  { id:'streak_7',     name:'Week Warrior',        desc:'7-day activity streak',                 emoji:'🔥', color:'gold',   xp:75,  unlocked:true, isNew:true },
+  { id:'profile_100',  name:'Profile Pro',         desc:'Completed your profile 100%',           emoji:'👑', color:'purple', xp:50,  unlocked:true  },
+  { id:'feedback',     name:'Guide Approved',      desc:'Received positive guide feedback',      emoji:'✅', color:'green',  xp:100, unlocked:true  },
+  { id:'connected',    name:'Networked',           desc:'Connected with 5+ students',            emoji:'🔗', color:'blue',   xp:40,  unlocked:true  },
+  { id:'submit_1',     name:'Launch Ready',        desc:'Submitted final project with video',    emoji:'🚀', color:'gold',   xp:200, unlocked:false },
+  { id:'top_3',        name:'Top 3',               desc:'Ranked top 3 on the leaderboard',       emoji:'🏆', color:'gold',   xp:300, unlocked:false },
+  { id:'marathon',     name:'Marathon Coder',      desc:'30-day activity streak',                emoji:'💪', color:'purple', xp:250, unlocked:false },
+  { id:'mentor',       name:'Peer Mentor',         desc:'Helped 3 connections with questions',   emoji:'🧠', color:'purple', xp:150, unlocked:false },
+];
+
+const LEADERBOARD = [
+  { name:'Sneha Kumar',  uni:'VJTI Mumbai',  color:'#0891b2', xp:920, badges:11, streak:14, level:6  },
+  { name:'Vikram Rao',   uni:'BITS Pilani',  color:'#1a7f37', xp:850, badges:10, streak:10, level:6  },
+  { name:'Priya Singh',  uni:'NIT Trichy',   color:'#0353a4', xp:740, badges:9,  streak:8,  level:5  },
+  { name:'Rahul Sharma', uni:'IIT Bombay',   color:'#0570de', xp:680, badges:8,  streak:7,  level:5, isMe:true },
+  { name:'Ananya Patel', uni:'VIT Vellore',  color:'#a855f7', xp:610, badges:7,  streak:5,  level:5  },
+  { name:'Mohit Verma',  uni:'DTU Delhi',    color:'#92400e', xp:420, badges:5,  streak:2,  level:4  },
+];
+
+const XP_LOG = [
+  { action:'Milestone approved by guide',  xp:'+150', time:'2 hours ago',   icon:'✅' },
+  { action:'7-day streak achieved',        xp:'+75',  time:'Today',         icon:'🔥' },
+  { action:'Journal entry posted',         xp:'+10',  time:'Today',         icon:'📓' },
+  { action:'Shortlisted for project',      xp:'+100', time:'Yesterday',     icon:'⭐' },
+  { action:'Profile completed',            xp:'+50',  time:'Mar 22',        icon:'👤' },
+  { action:'Connected with 5 students',    xp:'+40',  time:'Mar 20',        icon:'🔗' },
+  { action:'First journal entry',          xp:'+10',  time:'Mar 18',        icon:'📓' },
+  { action:'First application sent',       xp:'+50',  time:'Mar 15',        icon:'📋' },
+];
+
+function renderBadges() {
+  const earned = BADGES.filter(b => b.unlocked).length;
+  const total = BADGES.length;
+  document.getElementById('badgeSummary').textContent = `${earned} earned · ${total - earned} locked`;
+  document.getElementById('badgeCount').textContent = earned;
+  document.getElementById('badgeGrid').innerHTML = BADGES.map(b => `
+    <div class="badge-card ${b.unlocked ? 'unlocked ' + b.color : 'locked'}">
+      ${b.isNew && b.unlocked ? '<div class="badge-new">NEW</div>' : ''}
+      <span class="badge-emoji">${b.emoji}</span>
+      <div class="badge-name">${b.name}</div>
+      <div class="badge-desc">${b.desc}</div>
+      <div class="badge-xp">+${b.xp} XP</div>
+    </div>`).join('');
+}
+
+function renderLeaderboard(sortBy = 'xp') {
+  const sorted = [...LEADERBOARD].sort((a,b) => b[sortBy] - a[sortBy]);
+  const rankEmoji = { 0:'🥇', 1:'🥈', 2:'🥉' };
+  document.getElementById('lbList').innerHTML = sorted.map((s, i) => `
+    <div class="lb-row ${s.isMe ? 'me' : ''}">
+      <div class="lb-rank ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${rankEmoji[i] || i+1}</div>
+      <div class="lb-av" style="background:${s.color}">${s.name[0]}</div>
+      <div class="lb-body">
+        <div class="lb-name">${s.name} ${s.isMe ? '<span style="font-size:11px;color:var(--blue)">(you)</span>' : ''}</div>
+        <div class="lb-uni">${s.uni}</div>
+      </div>
+      <div style="font-size:13px;margin-right:12px">${'🏅'.repeat(Math.min(s.badges,3))}</div>
+      <div class="lb-right">
+        <div class="lb-xp">${s[sortBy]}${sortBy==='xp'?' XP':sortBy==='streak'?' days':' 🏅'}</div>
+        <div class="lb-level">Level ${s.level}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderXPHistory() {
+  document.getElementById('xpHistory').innerHTML = XP_LOG.map(x => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${x.icon}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">${x.action}</div><div style="font-size:12px;color:var(--text-4)">${x.time}</div></div>
+      <div style="font-size:14px;font-weight:800;color:var(--green)">${x.xp}</div>
+    </div>`).join('');
+}
+
+function renderStreakCal() {
+  const days = Array.from({length:24}, (_,i) => ({ day:i+1, status: i < 7 ? 'missed' : i < 22 ? 'done' : i === 22 ? 'today' : 'empty' }));
+  // Override specific days
+  [7,8,14,15,20].forEach(d => { if (days[d]) days[d].status = 'missed'; });
+  document.getElementById('streakCal').innerHTML = days.map(d => `
+    <div class="sc-day sc-${d.status}" title="Mar ${d.day}">${d.day}</div>`).join('');
+}
+
+function showTab(tab, el) {
+  ['badges','leaderboard','history'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t === tab ? '' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  if (tab === 'leaderboard') renderLeaderboard();
+  if (tab === 'history') renderXPHistory();
+}
+
+// Init
+const s = JSON.parse(localStorage.getItem('student') || '{}');
+if (s.fullName) {
+  document.getElementById('sidebarName').textContent = s.fullName;
+  document.getElementById('avLetter').textContent = s.fullName[0];
+  document.getElementById('xpStudentName').textContent = s.fullName;
+}
+function logout() { localStorage.clear(); location.href='/index.html'; }
+
+renderBadges(); renderStreakCal();
+</script>
+</body>
+</html>

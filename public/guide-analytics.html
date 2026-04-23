@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics | Guide | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.layout { display: flex; min-height: 100vh; }
+.sidebar { position: sticky; top: 0; height: 100vh; flex-shrink: 0; }
+.main { flex: 1; min-width: 0; padding: 40px 48px; background: var(--bg); }
+
+.stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card { padding: 22px 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.stat-icon { font-size: 20px; margin-bottom: 10px; }
+.stat-label { font-size: 12px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+.stat-value { font-size: 30px; font-weight: 800; color: var(--text); letter-spacing: -1px; line-height: 1; }
+.stat-sub { font-size: 12px; color: var(--text-4); margin-top: 6px; }
+.stat-delta { font-size: 12px; font-weight: 600; margin-top: 6px; }
+.delta-up { color: var(--green); }
+.delta-down { color: var(--red); }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.card-pad { padding: 24px; }
+.section-label { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 16px; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+.page-header { margin-bottom: 32px; }
+.page-eyebrow { font-size: 12px; font-weight: 600; color: var(--blue); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+.page-title { font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+.page-sub { font-size: 14px; color: var(--text-3); margin-top: 4px; }
+.header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+
+/* Bar chart */
+.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 140px; padding: 0 4px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.bar-fill { width: 100%; border-radius: 6px 6px 0 0; transition: height .6s ease; }
+.bar-label { font-size: 11px; color: var(--text-4); font-weight: 500; }
+.bar-val { font-size: 11px; font-weight: 700; color: var(--text-3); }
+
+/* Donut */
+.donut-wrap { display: flex; align-items: center; gap: 24px; }
+.donut-legend { display: flex; flex-direction: column; gap: 10px; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* Student perf list */
+.perf-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.perf-row:last-child { border-bottom: none; }
+.perf-av { width: 34px; height: 34px; border-radius: 50%; color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.perf-info { flex: 1; min-width: 0; }
+.perf-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.perf-proj { font-size: 12px; color: var(--text-4); margin-top: 1px; }
+.perf-bar-wrap { width: 120px; }
+.perf-bar-bg { height: 6px; background: var(--surface-2); border-radius: 3px; overflow: hidden; margin-top: 2px; }
+.perf-bar-fill { height: 100%; border-radius: 3px; transition: width .6s ease; }
+.perf-pct { font-size: 12px; font-weight: 700; color: var(--text-3); min-width: 34px; text-align: right; }
+.perf-grade { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+
+/* Activity feed */
+.activity-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.activity-item:last-child { border-bottom: none; }
+.act-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.act-body { flex: 1; min-width: 0; }
+.act-text { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+.act-text strong { color: var(--text); font-weight: 600; }
+.act-time { font-size: 12px; color: var(--text-4); margin-top: 3px; }
+
+/* Milestone heatmap */
+.heatmap { display: flex; flex-direction: column; gap: 6px; }
+.heatmap-row { display: flex; align-items: center; gap: 6px; }
+.heatmap-label { font-size: 11px; color: var(--text-4); width: 60px; text-align: right; flex-shrink: 0; }
+.heatmap-cells { display: flex; gap: 4px; }
+.heatmap-cell { width: 18px; height: 18px; border-radius: 3px; cursor: default; transition: transform .15s; }
+.heatmap-cell:hover { transform: scale(1.2); }
+.hmap-0 { background: var(--surface-2); }
+.hmap-1 { background: #bbf7d0; }
+.hmap-2 { background: #4ade80; }
+.hmap-3 { background: var(--green); }
+
+/* Trend line (pure CSS) */
+.sparkline { display: flex; align-items: flex-end; gap: 3px; height: 40px; }
+.spark-bar { flex: 1; border-radius: 2px 2px 0 0; background: var(--blue-light); min-width: 6px; }
+.spark-bar.highlight { background: var(--blue); }
+
+/* Tab bar */
+.tab-bar { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px; gap: 0; }
+.tab { padding: 10px 20px; font-size: 13px; font-weight: 600; color: var(--text-3); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all .15s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+.kpi-trend { display: flex; align-items: center; gap: 4px; font-size: 12px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">Prashik<span>shan</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Guide Panel</div>
+    <a class="nav-item" href="guide-dashboard.html"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item" href="guide-applications.html"><span class="nav-icon">📋</span>Applications</a>
+    <a class="nav-item" href="review-submissions.html"><span class="nav-icon">📝</span>Review Submissions</a>
+    <a class="nav-item" href="guide-rubric.html"><span class="nav-icon">📐</span>Rubric Grading</a>
+    <a class="nav-item" href="guide-announcements.html"><span class="nav-icon">📢</span>Announcements</a>
+    <a class="nav-item" href="guide-chat.html"><span class="nav-icon">💬</span>Student Chat</a>
+    <a class="nav-item active" href="guide-analytics.html"><span class="nav-icon">📊</span>Analytics</a>
+    <a class="nav-item" href="guide-students.html"><span class="nav-icon">👥</span>Student Tracker</a>
+    <a class="nav-item" href="guide-schedule.html"><span class="nav-icon">🗓</span>Schedule</a>
+    <div class="nav-group-label">Account</div>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">→</span>Sign out</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" style="background:#f59e0b;color:#1a1f36" id="avLetter">G</div>
+      <div>
+        <div class="user-name" id="guideName">Guide</div>
+        <div class="user-role">Expert Guide</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="header-row page-header fade-up">
+    <div>
+      <div class="page-eyebrow">Guide Panel</div>
+      <div class="page-title">Analytics & Insights</div>
+      <div class="page-sub">Track student performance, project health, and engagement metrics.</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <select class="input" id="periodSelect" style="width:160px" onchange="updatePeriod()">
+        <option value="week">This week</option>
+        <option value="month" selected>This month</option>
+        <option value="semester">This semester</option>
+      </select>
+      <button class="btn btn-secondary" onclick="exportReport()">↓ Export</button>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="stats-grid fade-up d1">
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-label">Active Students</div>
+      <div class="stat-value" id="kpi-students">12</div>
+      <div class="kpi-trend delta-up">▲ 2 this month</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📈</div>
+      <div class="stat-label">Avg. Progress</div>
+      <div class="stat-value" id="kpi-progress">67%</div>
+      <div class="kpi-trend delta-up">▲ 12% from last month</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-label">Avg. Score</div>
+      <div class="stat-value" id="kpi-score">82</div>
+      <div class="kpi-trend delta-up">▲ 5 pts from last batch</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-label">On-time Rate</div>
+      <div class="stat-value" id="kpi-ontime">75%</div>
+      <div class="kpi-trend delta-down">▼ 3% — 3 late submissions</div>
+    </div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="grid-2 fade-up d2">
+    <!-- Progress distribution bar chart -->
+    <div class="card card-pad">
+      <div class="between" style="margin-bottom:20px">
+        <div class="section-label" style="margin:0">Progress Distribution</div>
+        <span style="font-size:12px;color:var(--text-4)">All 12 students</span>
+      </div>
+      <div class="bar-chart" id="progressChart"></div>
+      <div style="display:flex;justify-content:space-around;margin-top:10px">
+        <div style="text-align:center"><div style="font-size:11px;color:var(--text-4)">0–25%</div><div style="font-size:12px;font-weight:700;color:var(--text-3)">Needs help</div></div>
+        <div style="text-align:center"><div style="font-size:11px;color:var(--text-4)">26–50%</div><div style="font-size:12px;font-weight:700;color:var(--text-3)">Getting there</div></div>
+        <div style="text-align:center"><div style="font-size:11px;color:var(--text-4)">51–75%</div><div style="font-size:12px;font-weight:700;color:var(--text-3)">On track</div></div>
+        <div style="text-align:center"><div style="font-size:11px;color:var(--text-4)">76–100%</div><div style="font-size:12px;font-weight:700;color:var(--text-3)">Ahead</div></div>
+      </div>
+    </div>
+
+    <!-- Submission status donut -->
+    <div class="card card-pad">
+      <div class="between" style="margin-bottom:20px">
+        <div class="section-label" style="margin:0">Submission Status</div>
+        <span style="font-size:12px;color:var(--text-4)">Current batch</span>
+      </div>
+      <div class="donut-wrap">
+        <canvas id="donutCanvas" width="130" height="130"></canvas>
+        <div class="donut-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#1a7f37"></div><span><strong>4</strong> Approved</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#0570de"></div><span><strong>5</strong> In Progress</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div><span><strong>2</strong> Under Review</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#e3e8ee"></div><span><strong>1</strong> Not Started</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Student performance table + Activity feed -->
+  <div class="grid-2 fade-up d3">
+    <div class="card card-pad">
+      <div class="between" style="margin-bottom:4px">
+        <div class="section-label" style="margin:0">Student Performance</div>
+        <a href="guide-students.html" style="font-size:13px;color:var(--blue);text-decoration:none;font-weight:600">View all →</a>
+      </div>
+      <div class="divider"></div>
+      <div id="perfList"></div>
+    </div>
+
+    <div class="card card-pad">
+      <div class="between" style="margin-bottom:4px">
+        <div class="section-label" style="margin:0">Recent Activity</div>
+        <span style="font-size:12px;color:var(--text-4)" id="actCount">6 events</span>
+      </div>
+      <div class="divider"></div>
+      <div id="activityFeed"></div>
+    </div>
+  </div>
+
+  <!-- Milestone heatmap + Weekly engagement -->
+  <div class="grid-2 fade-up d4">
+    <div class="card card-pad">
+      <div class="section-label">Milestone Completion Heatmap</div>
+      <p style="font-size:13px;color:var(--text-3);margin-bottom:16px">How each student is tracking against 5 milestones.</p>
+      <div class="heatmap" id="heatmap"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:16px">
+        <span style="font-size:11px;color:var(--text-4)">Less</span>
+        <div class="heatmap-cell hmap-0" style="width:14px;height:14px"></div>
+        <div class="heatmap-cell hmap-1" style="width:14px;height:14px"></div>
+        <div class="heatmap-cell hmap-2" style="width:14px;height:14px"></div>
+        <div class="heatmap-cell hmap-3" style="width:14px;height:14px"></div>
+        <span style="font-size:11px;color:var(--text-4)">More</span>
+      </div>
+    </div>
+
+    <div class="card card-pad">
+      <div class="between" style="margin-bottom:4px">
+        <div class="section-label" style="margin:0">Weekly Submissions Trend</div>
+        <span style="font-size:12px;color:var(--text-4)">Last 8 weeks</span>
+      </div>
+      <div class="divider"></div>
+      <div class="sparkline" id="trendBars" style="height:100px;gap:6px;margin-bottom:12px"></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-4)">
+        <span>8 wks ago</span><span>4 wks ago</span><span>This week</span>
+      </div>
+      <div class="divider"></div>
+      <div style="display:flex;gap:16px">
+        <div>
+          <div class="stat-label">Peak week</div>
+          <div style="font-size:18px;font-weight:800;color:var(--text)">9</div>
+        </div>
+        <div>
+          <div class="stat-label">Avg / week</div>
+          <div style="font-size:18px;font-weight:800;color:var(--text)">5.4</div>
+        </div>
+        <div>
+          <div class="stat-label">This week</div>
+          <div style="font-size:18px;font-weight:800;color:var(--blue)">7</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Domain breakdown -->
+  <div class="card card-pad fade-up d5">
+    <div class="between" style="margin-bottom:20px">
+      <div class="section-label" style="margin:0">Domain Breakdown</div>
+      <span style="font-size:12px;color:var(--text-4)">By project domain</span>
+    </div>
+    <div id="domainBars"></div>
+  </div>
+</main>
+</div>
+
+<script>
+// ── Init guide info ──────────────────────────────────────────────────────
+const g = JSON.parse(localStorage.getItem('guide') || '{}');
+if (g.name) {
+  document.getElementById('guideName').textContent = g.name;
+  document.getElementById('avLetter').textContent = g.name[0];
+}
+function logout() { localStorage.removeItem('guide'); location.href = '/index.html'; }
+
+// ── Data ─────────────────────────────────────────────────────────────────
+const STUDENTS_DATA = [
+  { name:'Rahul Sharma',  project:'AI Resume Analyzer',            color:'#0570de', progress:60, score:88, onTime:true,  grade:'A' },
+  { name:'Ananya Patel',  project:'Student Perf. Predictor',       color:'#a855f7', progress:40, score:74, onTime:false, grade:'B' },
+  { name:'Vikram Rao',    project:'Cyber Threat Detector',         color:'#1a7f37', progress:80, score:91, onTime:true,  grade:'A+' },
+  { name:'Priya Singh',   project:'AI Resume Analyzer',            color:'#0353a4', progress:55, score:82, onTime:true,  grade:'A' },
+  { name:'Mohit Verma',   project:'Smart Campus App',              color:'#92400e', progress:20, score:65, onTime:false, grade:'C+' },
+  { name:'Sneha Kumar',   project:'IoT Weather Monitor',           color:'#0891b2', progress:90, score:95, onTime:true,  grade:'A+' },
+];
+
+const ACTIVITY = [
+  { icon:'📝', color:'#e8f0fe', text:'<strong>Rahul Sharma</strong> submitted Phase 2 deliverables', time:'2 hours ago' },
+  { icon:'✅', color:'#dcfce7', text:'You approved <strong>Sneha Kumar\'s</strong> final milestone', time:'5 hours ago' },
+  { icon:'💬', color:'#ede9fe', text:'<strong>Ananya Patel</strong> sent a message about data pipeline', time:'Yesterday' },
+  { icon:'🔄', color:'#fef3c7', text:'You requested changes on <strong>Mohit Verma\'s</strong> submission', time:'Yesterday' },
+  { icon:'📋', color:'#e8f0fe', text:'<strong>3 new applications</strong> received for AI Resume Analyzer', time:'2 days ago' },
+  { icon:'⭐', color:'#fef9c3', text:'<strong>Vikram Rao</strong> completed all 5 milestones', time:'3 days ago' },
+];
+
+const MILESTONES = [
+  { name:'Rahul',  values:[3,3,2,1,0] },
+  { name:'Ananya', values:[3,2,1,0,0] },
+  { name:'Vikram', values:[3,3,3,3,3] },
+  { name:'Priya',  values:[3,3,2,1,0] },
+  { name:'Mohit',  values:[2,1,0,0,0] },
+  { name:'Sneha',  values:[3,3,3,3,2] },
+];
+
+const MILESTONES_LABELS = ['Idea', 'UI', 'Backend', 'Testing', 'Submit'];
+
+const DOMAINS = [
+  { name:'Software Engineering', count:4, color:'#0570de' },
+  { name:'Medical Tech',         count:2, color:'#1a7f37' },
+  { name:'Business Analytics',   count:6, color:'#a855f7' },
+];
+
+const WEEKLY_TREND = [3, 5, 2, 7, 4, 9, 6, 7];
+
+// ── Render: Progress bar chart ────────────────────────────────────────────
+function renderProgressChart() {
+  const buckets = [
+    { label:'0–25%', count:1, color:'#fca5a5' },
+    { label:'26–50%', count:3, color:'#fcd34d' },
+    { label:'51–75%', count:4, color:'#60a5fa' },
+    { label:'76–100%', count:4, color:'#4ade80' },
+  ];
+  const maxCount = Math.max(...buckets.map(b => b.count));
+  const el = document.getElementById('progressChart');
+  el.innerHTML = buckets.map(b => `
+    <div class="bar-col">
+      <div class="bar-val">${b.count}</div>
+      <div class="bar-fill" style="height:${(b.count/maxCount)*120}px;background:${b.color}"></div>
+      <div class="bar-label">${b.label}</div>
+    </div>`).join('');
+}
+
+// ── Render: Donut chart (canvas) ──────────────────────────────────────────
+function renderDonut() {
+  const canvas = document.getElementById('donutCanvas');
+  const ctx = canvas.getContext('2d');
+  const data = [4, 5, 2, 1];
+  const colors = ['#1a7f37','#0570de','#f59e0b','#e3e8ee'];
+  const total = data.reduce((a,b) => a+b, 0);
+  let start = -Math.PI / 2;
+  const cx = 65, cy = 65, r = 50, innerR = 32;
+  ctx.clearRect(0,0,130,130);
+  data.forEach((val, i) => {
+    const angle = (val / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, start + angle);
+    ctx.fillStyle = colors[i];
+    ctx.fill();
+    start += angle;
+  });
+  // Inner hole
+  ctx.beginPath();
+  ctx.arc(cx, cy, innerR, 0, Math.PI * 2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+  // Center text
+  ctx.fillStyle = '#1a1f36';
+  ctx.font = 'bold 18px Plus Jakarta Sans, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('12', cx, cy - 5);
+  ctx.font = '600 10px Plus Jakarta Sans, sans-serif';
+  ctx.fillStyle = '#9ca3af';
+  ctx.fillText('students', cx, cy + 10);
+}
+
+// ── Render: Performance list ──────────────────────────────────────────────
+function renderPerfList() {
+  const colors = { 'A+':'#dcfce7','A':'#dcfce7','B':'#fef3c7','C+':'#fde8e8' };
+  const textColors = { 'A+':'#1a7f37','A':'#1a7f37','B':'#92400e','C+':'#c0392b' };
+  document.getElementById('perfList').innerHTML = STUDENTS_DATA.map(s => `
+    <div class="perf-row">
+      <div class="perf-av" style="background:${s.color}">${s.name[0]}</div>
+      <div class="perf-info">
+        <div class="perf-name">${s.name}</div>
+        <div class="perf-proj">${s.project}</div>
+      </div>
+      <div class="perf-bar-wrap">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-4)"><span>Progress</span><span>${s.progress}%</span></div>
+        <div class="perf-bar-bg"><div class="perf-bar-fill" style="width:${s.progress}%;background:${s.color}"></div></div>
+      </div>
+      <div class="perf-grade" style="background:${colors[s.grade]};color:${textColors[s.grade]}">${s.grade}</div>
+    </div>`).join('');
+}
+
+// ── Render: Activity feed ─────────────────────────────────────────────────
+function renderActivity() {
+  document.getElementById('actCount').textContent = ACTIVITY.length + ' events';
+  document.getElementById('activityFeed').innerHTML = ACTIVITY.map(a => `
+    <div class="activity-item">
+      <div class="act-icon" style="background:${a.color}">${a.icon}</div>
+      <div class="act-body">
+        <div class="act-text">${a.text}</div>
+        <div class="act-time">${a.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── Render: Heatmap ───────────────────────────────────────────────────────
+function renderHeatmap() {
+  document.getElementById('heatmap').innerHTML =
+    `<div class="heatmap-row" style="margin-bottom:4px">
+       <div class="heatmap-label"></div>
+       <div class="heatmap-cells">${MILESTONES_LABELS.map(l => `<div style="width:18px;text-align:center;font-size:10px;color:var(--text-4)">${l}</div>`).join('')}</div>
+     </div>` +
+    MILESTONES.map(row => `
+      <div class="heatmap-row">
+        <div class="heatmap-label">${row.name}</div>
+        <div class="heatmap-cells">${row.values.map(v => `<div class="heatmap-cell hmap-${v}" title="${v === 0 ? 'Not started' : v === 1 ? 'Started' : v === 2 ? 'In progress' : 'Done'}"></div>`).join('')}</div>
+      </div>`).join('');
+}
+
+// ── Render: Trend bars ────────────────────────────────────────────────────
+function renderTrend() {
+  const max = Math.max(...WEEKLY_TREND);
+  document.getElementById('trendBars').innerHTML = WEEKLY_TREND.map((v, i) => `
+    <div class="bar-col" style="flex:1">
+      <div style="flex:1;display:flex;align-items:flex-end">
+        <div class="spark-bar ${i === WEEKLY_TREND.length - 1 ? 'highlight' : ''}" style="width:100%;height:${(v/max)*90}px"></div>
+      </div>
+      <div class="bar-val" style="font-size:10px">${v}</div>
+    </div>`).join('');
+}
+
+// ── Render: Domain bars ───────────────────────────────────────────────────
+function renderDomains() {
+  const total = DOMAINS.reduce((a,b) => a+b.count, 0);
+  document.getElementById('domainBars').innerHTML = DOMAINS.map(d => `
+    <div style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:13px;font-weight:600;color:var(--text)">${d.name}</span>
+        <span style="font-size:13px;color:var(--text-3)">${d.count} students · ${Math.round(d.count/total*100)}%</span>
+      </div>
+      <div style="height:10px;background:var(--surface-2);border-radius:5px;overflow:hidden">
+        <div style="height:100%;width:${Math.round(d.count/total*100)}%;background:${d.color};border-radius:5px;transition:width .8s ease"></div>
+      </div>
+    </div>`).join('');
+}
+
+function updatePeriod() {
+  // In a real app, this would re-fetch data; here we just animate
+  renderProgressChart();
+  renderDonut();
+}
+
+function exportReport() {
+  const btn = event.target;
+  btn.textContent = '✓ Exported!';
+  setTimeout(() => btn.textContent = '↓ Export', 2000);
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────
+renderProgressChart();
+renderDonut();
+renderPerfList();
+renderActivity();
+renderHeatmap();
+renderTrend();
+renderDomains();
+</script>
+</body>
+</html>

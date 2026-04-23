@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications | Prashikshan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+.layout { display: flex; min-height: 100vh; }
+.main { flex: 1; min-width: 0; padding: 40px 48px; background: var(--bg); }
+.grid-main { display: grid; grid-template-columns: 1fr 280px; gap: 24px; align-items: start; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.card-pad { padding: 24px; }
+.section-label { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 14px; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* Notif items */
+.notif-group-label { font-size: 11px; font-weight: 700; color: var(--text-4); text-transform: uppercase; letter-spacing: .7px; padding: 16px 0 8px; }
+.notif-item { display: flex; gap: 14px; padding: 16px; border-radius: var(--radius-lg); margin-bottom: 6px; cursor: pointer; transition: all .18s; border: 1px solid transparent; position: relative; }
+.notif-item:hover { background: var(--surface-2); border-color: var(--border); }
+.notif-item.unread { background: #eff6ff; border-color: #bfdbfe; }
+.notif-item.unread::before { content: ''; position: absolute; top: 20px; left: -2px; width: 4px; height: 24px; background: var(--blue); border-radius: 0 2px 2px 0; }
+.ni-icon { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.ni-body { flex: 1; min-width: 0; }
+.ni-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; line-height: 1.4; }
+.notif-item.unread .ni-title { font-weight: 700; }
+.ni-sub { font-size: 13px; color: var(--text-3); line-height: 1.5; }
+.ni-time { font-size: 12px; color: var(--text-4); margin-top: 6px; display: flex; align-items: center; gap: 6px; }
+.ni-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+.ni-dismiss { background: none; border: none; color: var(--text-4); cursor: pointer; font-size: 16px; padding: 2px; transition: color .15s; }
+.ni-dismiss:hover { color: var(--text); }
+.ni-action { padding: 5px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 600; color: var(--text-2); cursor: pointer; transition: all .15s; white-space: nowrap; font-family: var(--font); }
+.ni-action:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+.ni-action.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+/* Filter pills */
+.filter-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+.fpill { padding: 7px 16px; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; font-weight: 600; color: var(--text-3); background: var(--surface); cursor: pointer; transition: all .15s; }
+.fpill:hover { border-color: var(--border-dark); color: var(--text); }
+.fpill.on { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+/* Sidebar */
+.pref-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.pref-item:last-child { border-bottom: none; }
+.pref-label { font-size: 13px; font-weight: 500; color: var(--text-2); }
+.pref-sub { font-size: 11px; color: var(--text-4); margin-top: 2px; }
+/* Toggle */
+.toggle { width: 38px; height: 22px; background: var(--border); border-radius: 11px; position: relative; cursor: pointer; transition: background .2s; flex-shrink: 0; border: none; }
+.toggle.on { background: var(--blue); }
+.toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left .2s; }
+.toggle.on::after { left: 19px; }
+
+/* Empty state */
+.empty { text-align: center; padding: 60px 20px; }
+.empty-icon { font-size: 40px; margin-bottom: 12px; opacity: .4; }
+
+/* Deadline chip */
+.deadline-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 8px; background: var(--bg); }
+.dl-icon { font-size: 18px; flex-shrink: 0; }
+.dl-body { flex: 1; min-width: 0; }
+.dl-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.dl-date { font-size: 12px; color: var(--text-4); margin-top: 2px; }
+.dl-badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; flex-shrink: 0; }
+.dl-urgent { background: #fde8e8; color: var(--red); }
+.dl-soon { background: #fef3c7; color: var(--yellow); }
+.dl-ok { background: #dcfce7; color: var(--green); }
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <a href="dashboard.html" class="sidebar-logo">Prashik<span>shan</span></a>
+  <nav class="sidebar-nav">
+    <span class="nav-group-label">Menu</span>
+    <a class="nav-item" href="dashboard.html"><span class="nav-icon">⚡</span>Dashboard</a>
+    <a class="nav-item" href="marketplace.html"><span class="nav-icon">🛒</span>Marketplace</a>
+    <a class="nav-item" href="applications.html"><span class="nav-icon">📋</span>My Applications</a>
+    <a class="nav-item" href="connections.html"><span class="nav-icon">🔗</span>Connections</a>
+    <span class="nav-group-label" style="margin-top:8px">Work</span>
+    <a class="nav-item" href="progress-journal.html"><span class="nav-icon">📓</span>Progress Journal</a>
+    <a class="nav-item" href="achievements.html"><span class="nav-icon">🏆</span>Achievements</a>
+    <a class="nav-item active" href="notifications.html"><span class="nav-icon">🔔</span>Notifications <span style="background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;margin-left:4px" id="unreadBadge">4</span></a>
+    <a class="nav-item" href="profile.html"><span class="nav-icon">👤</span>My Profile</a>
+    <a class="nav-item" href="submit-project.html"><span class="nav-icon">📤</span>Submit Work</a>
+    <a class="nav-item" href="chat.html"><span class="nav-icon">💬</span>Guide Chat</a>
+    <span class="nav-group-label" style="margin-top:8px">Account</span>
+    <button class="nav-item" onclick="logout()"><span class="nav-icon">🚪</span>Sign out</button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" id="avLetter">S</div>
+      <div><div class="user-name" id="sidebarName">Student</div><div class="user-role">Student</div></div>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px" class="fade-up">
+    <div>
+      <div class="page-eyebrow">Alerts</div>
+      <div style="font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.5px">Notifications</div>
+      <div style="font-size:14px;color:var(--text-3);margin-top:4px">Stay on top of your project updates.</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary btn-sm" onclick="markAllRead()">✓ Mark all read</button>
+      <button class="btn btn-secondary btn-sm" onclick="clearAll()">🗑 Clear all</button>
+    </div>
+  </div>
+
+  <div class="grid-main">
+    <!-- Left: notifs -->
+    <div>
+      <div class="filter-bar fade-up d1">
+        <div class="fpill on" onclick="filterNotifs('all',this)">All <span id="allCount" style="opacity:.7"></span></div>
+        <div class="fpill" onclick="filterNotifs('unread',this)">Unread <span id="unreadCount" style="opacity:.7"></span></div>
+        <div class="fpill" onclick="filterNotifs('guide',this)">Guide</div>
+        <div class="fpill" onclick="filterNotifs('milestone',this)">Milestones</div>
+        <div class="fpill" onclick="filterNotifs('application',this)">Applications</div>
+        <div class="fpill" onclick="filterNotifs('achievement',this)">Achievements</div>
+      </div>
+
+      <div id="notifList" class="fade-up d2"></div>
+    </div>
+
+    <!-- Right sidebar -->
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <!-- Upcoming deadlines -->
+      <div class="card card-pad fade-up d2">
+        <div class="section-label">Upcoming Deadlines</div>
+        <div class="deadline-item">
+          <div class="dl-icon">🔴</div>
+          <div class="dl-body">
+            <div class="dl-title">Backend submission</div>
+            <div class="dl-date">Due in 2 days</div>
+          </div>
+          <div class="dl-badge dl-urgent">Urgent</div>
+        </div>
+        <div class="deadline-item">
+          <div class="dl-icon">🟡</div>
+          <div class="dl-body">
+            <div class="dl-title">Testing milestone</div>
+            <div class="dl-date">Due in 7 days</div>
+          </div>
+          <div class="dl-badge dl-soon">Soon</div>
+        </div>
+        <div class="deadline-item">
+          <div class="dl-icon">🟢</div>
+          <div class="dl-body">
+            <div class="dl-title">Final submission</div>
+            <div class="dl-date">Due in 14 days</div>
+          </div>
+          <div class="dl-badge dl-ok">On track</div>
+        </div>
+      </div>
+
+      <!-- Notification preferences -->
+      <div class="card card-pad fade-up d3">
+        <div class="section-label">Preferences</div>
+        <div class="pref-item">
+          <div><div class="pref-label">Guide messages</div><div class="pref-sub">When your guide replies</div></div>
+          <button class="toggle on" id="pref-guide" onclick="togglePref(this)"></button>
+        </div>
+        <div class="pref-item">
+          <div><div class="pref-label">Milestone approvals</div><div class="pref-sub">When guide approves work</div></div>
+          <button class="toggle on" id="pref-milestone" onclick="togglePref(this)"></button>
+        </div>
+        <div class="pref-item">
+          <div><div class="pref-label">Application updates</div><div class="pref-sub">Status changes</div></div>
+          <button class="toggle on" id="pref-app" onclick="togglePref(this)"></button>
+        </div>
+        <div class="pref-item">
+          <div><div class="pref-label">Deadline reminders</div><div class="pref-sub">3 days before due date</div></div>
+          <button class="toggle on" id="pref-deadline" onclick="togglePref(this)"></button>
+        </div>
+        <div class="pref-item">
+          <div><div class="pref-label">Achievements</div><div class="pref-sub">New badges & XP</div></div>
+          <button class="toggle" id="pref-badge" onclick="togglePref(this)"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+let notifs = [
+  { id:1,  type:'guide',       icon:'💬', iconBg:'#dbeafe', title:'Dr. Sharma left feedback on your submission', sub:'Great work on the NLP module! The accuracy improvement is impressive. Try adding a confidence threshold filter.', time:'2 hours ago', unread:true,  action:'View feedback', link:'review-submissions.html' },
+  { id:2,  type:'milestone',   icon:'✅', iconBg:'#dcfce7', title:'Milestone approved: UI Prototype', sub:'Your UI Prototype milestone has been approved by Dr. Sharma. Move on to the Backend Development phase.', time:'5 hours ago', unread:true,  action:'View project', link:'submit-project.html' },
+  { id:3,  type:'application', icon:'⭐', iconBg:'#fef3c7', title:'You\'ve been shortlisted!', sub:'Congratulations! You\'ve been shortlisted for the AI Resume Analyzer project. Your guide will contact you shortly.', time:'Yesterday',  unread:true,  action:'View application', link:'applications.html' },
+  { id:4,  type:'achievement', icon:'🏅', iconBg:'#ede9fe', title:'New badge unlocked: Week Warrior 🔥', sub:'You\'ve maintained a 7-day activity streak! Keep it up to unlock the Month Marathon badge.', time:'Yesterday',  unread:true,  action:'View badges', link:'achievements.html' },
+  { id:5,  type:'guide',       icon:'📝', iconBg:'#dbeafe', title:'New meeting scheduled by your guide', sub:'Dr. Sharma scheduled a review session for March 26 at 10:00 AM. Topic: Backend Development walkthrough.', time:'2 days ago', unread:false, action:'View schedule', link:'#' },
+  { id:6,  type:'milestone',   icon:'🎯', iconBg:'#dcfce7', title:'Milestone reminder: Backend Dev due in 2 days', sub:'Your Backend Development milestone is due on March 26. Don\'t forget to submit your progress!', time:'2 days ago', unread:false, action:'Submit work', link:'submit-project.html' },
+  { id:7,  type:'application', icon:'📋', iconBg:'#fef3c7', title:'Application viewed by guide', sub:'Dr. Sharma viewed your application for the AI Resume Analyzer project.', time:'3 days ago', unread:false },
+  { id:8,  type:'achievement', icon:'🏆', iconBg:'#ede9fe', title:'Leaderboard update: You\'re now #4!', sub:'You moved up 2 places on the leaderboard this week. Keep working to reach the top 3!', time:'4 days ago', unread:false },
+  { id:9,  type:'guide',       icon:'💬', iconBg:'#dbeafe', title:'Guide replied to your query', sub:'Dr. Sharma answered your question about feature extraction: "Use TF-IDF with ngram_range=(1,2) for better results."', time:'5 days ago', unread:false, action:'View conversation', link:'chat.html' },
+];
+
+let activeFilter = 'all';
+
+function renderNotifs() {
+  const filtered = activeFilter === 'all' ? notifs
+    : activeFilter === 'unread' ? notifs.filter(n => n.unread)
+    : notifs.filter(n => n.type === activeFilter);
+
+  const unreadAll = notifs.filter(n => n.unread).length;
+  document.getElementById('allCount').textContent = `(${notifs.length})`;
+  document.getElementById('unreadCount').textContent = `(${unreadAll})`;
+  document.getElementById('unreadBadge').textContent = unreadAll;
+  document.getElementById('unreadBadge').style.display = unreadAll ? '' : 'none';
+
+  if (!filtered.length) {
+    document.getElementById('notifList').innerHTML = `<div class="empty"><div class="empty-icon">🔔</div><div style="font-size:14px;font-weight:600;color:var(--text-3)">No ${activeFilter === 'all' ? '' : activeFilter + ' '}notifications</div></div>`;
+    return;
+  }
+
+  // Group by time
+  const today = [], yesterday = [], older = [];
+  filtered.forEach(n => {
+    if (n.time.includes('hour') || n.time === 'Today') today.push(n);
+    else if (n.time === 'Yesterday') yesterday.push(n);
+    else older.push(n);
+  });
+
+  let html = '';
+  if (today.length) html += `<div class="notif-group-label">Today</div>` + today.map(renderNotif).join('');
+  if (yesterday.length) html += `<div class="notif-group-label">Yesterday</div>` + yesterday.map(renderNotif).join('');
+  if (older.length) html += `<div class="notif-group-label">Earlier</div>` + older.map(renderNotif).join('');
+  document.getElementById('notifList').innerHTML = html;
+}
+
+function renderNotif(n) {
+  return `
+    <div class="notif-item ${n.unread ? 'unread' : ''}" id="notif-${n.id}" onclick="readNotif(${n.id})">
+      <div class="ni-icon" style="background:${n.iconBg}">${n.icon}</div>
+      <div class="ni-body">
+        <div class="ni-title">${n.title}</div>
+        <div class="ni-sub">${n.sub}</div>
+        <div class="ni-time">
+          <span>${n.time}</span>
+          ${n.unread ? '<span style="width:6px;height:6px;border-radius:50%;background:var(--blue);display:inline-block"></span>' : ''}
+        </div>
+      </div>
+      <div class="ni-right">
+        <button class="ni-dismiss" onclick="dismissNotif(event,${n.id})">✕</button>
+        ${n.action ? `<button class="ni-action ${n.unread ? 'primary' : ''}" onclick="goTo(event,'${n.link||'#'}')">${n.action}</button>` : ''}
+      </div>
+    </div>`;
+}
+
+function readNotif(id) {
+  const n = notifs.find(x => x.id === id);
+  if (n) { n.unread = false; renderNotifs(); }
+}
+function dismissNotif(e, id) {
+  e.stopPropagation();
+  notifs = notifs.filter(n => n.id !== id);
+  renderNotifs();
+}
+function goTo(e, link) {
+  e.stopPropagation();
+  if (link && link !== '#') location.href = link;
+}
+function markAllRead() { notifs.forEach(n => n.unread = false); renderNotifs(); }
+function clearAll() { notifs = []; renderNotifs(); }
+function filterNotifs(f, el) {
+  activeFilter = f;
+  document.querySelectorAll('.fpill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  renderNotifs();
+}
+function togglePref(btn) { btn.classList.toggle('on'); }
+
+const s = JSON.parse(localStorage.getItem('student') || '{}');
+if (s.fullName) { document.getElementById('sidebarName').textContent = s.fullName; document.getElementById('avLetter').textContent = s.fullName[0]; }
+function logout() { localStorage.clear(); location.href='/index.html'; }
+
+renderNotifs();
+</script>
+</body>
+</html>
