@@ -11,9 +11,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
-app.get("/", (req, res) => {
-  res.send("Prashikshan API is running ✅");
-});
 
 // DB connection
 mongoose.connect(process.env.MONGO_URI)
