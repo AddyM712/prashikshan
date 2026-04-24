@@ -15,7 +15,8 @@ exports.register = async (req, res) => {
 
     res.status(201).json({ message: "Registered successfully" });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Register error:", err.message); // ✅ logs real error to Vercel
+    res.status(500).json({ message: "Server error: " + err.message });
   }
 };
 
@@ -37,6 +38,7 @@ exports.login = async (req, res) => {
 
     res.json({ token, student: { fullName: student.fullName, email: student.email, domain: student.domain } });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    console.error("Login error:", err.message); // ✅ logs real error to Vercel
+    res.status(500).json({ message: "Server error: " + err.message });
   }
 };

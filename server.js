@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const path = require("path");        // ← LINE ADDED
+const path = require("path");
 
 dotenv.config();
 
@@ -11,12 +11,27 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));   // ← LINE CHANGED
+app.use(express.static(path.join(__dirname, "public")));
 
-// DB connection
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch(err => console.log("DB Error:", err));
+// ✅ Serverless-safe DB connection
+let isConnected = false;
+async function connectDB() {
+  if (isConnected) return;
+  await mongoose.connect(process.env.MONGO_URI);
+  isConnected = true;
+  console.log("MongoDB connected");
+}
+
+// ✅ Run connectDB before every request
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error("DB connection failed:", err.message);
+    res.status(500).json({ message: "Database connection failed: " + err.message });
+  }
+});
 
 // Routes
 const authRoutes = require("./routes/authRoutes");
@@ -33,14 +48,15 @@ app.use("/api/guide", guideRoutes);
 app.use("/api/journal", journalRoutes);
 app.use("/api/announcements", announcementRoutes);
 
-// Serve frontend for all other routes   // ← LINE ADDED
-app.get("*", (req, res) => {             // ← LINE ADDED
-  res.sendFile(path.join(__dirname, "public", "index.html"));  // ← LINE ADDED
-});                                      // ← LINE ADDED
+// Serve frontend
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
-// For local dev only                   // ← LINE CHANGED (was app.listen directly)
+// Local dev only
 const PORT = process.env.PORT || 3000;
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => console.log(`Server on http://localhost:${PORT}`));
 }
-module.exports = app;                   // ← LINE ADDED
+
+module.exports = app;
